@@ -172,7 +172,7 @@
   setTimeout(function(){
     if(!window._supabaseReady && typeof window.supabase==='undefined'){
       var s=document.createElement('script');
-      s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.min.js';
+      s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/window.supabase.min.js';
       s.onload=function(){window._supabaseReady=true};
       document.head.appendChild(s);
     }
@@ -181,7 +181,7 @@
     <script>
     // Built-in fetch-based Supabase client - zero CDN dependency
     (function(){
-      var URL="https://pupvnkqfljlkubohczbm.supabase.co";
+      var URL="https://pupvnkqfljlkubohczbm.window.supabase.co";
       var KEY="sb_publishable_RlCTDg_FOPBpvfw9bfkB9Q_WIY9X6tl";
       var H={"apikey":KEY,"Authorization":"Bearer "+KEY,"Content-Type":"application/json"};
       function api(m,path,body){
@@ -221,7 +221,7 @@
     // ║  xicaiwall · 前端                              ║
     // ║  双模：Supabase（云端实时）↔ localStorage（离线降级）    ║
     // ╚══════════════════════════════════════════════════════════╝
-    const SUPABASE_URL = 'https://pupvnkqfljlkubohczbm.supabase.co';
+    const SUPABASE_URL = 'https://pupvnkqfljlkubohczbm.window.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_RlCTDg_FOPBpvfw9bfkB9Q_WIY9X6tl';
     const categories = [
       { name: "学习交流", icon: "fa-book-open", color: "bg-blue-50 text-campus" },
@@ -267,7 +267,7 @@ function setConnStatus(s) {
     }
     function subscribeRealtime() {
       if (!supabase || !isCloudEnabled) return;
-      supabase.channel('posts-changes')
+      window.supabase.channel('posts-changes')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'posts' }, function(p) {
           if (state.page === 'all' || (state.page === 'categoryPosts' && p.new.category === state.selectedCategory)) {
             newPostCount++; showNewPostToast();
@@ -276,11 +276,11 @@ function setConnStatus(s) {
         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'posts' }, function() { if (state.page==='detail'||state.page==='all') refreshCurrentView(); })
         .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'posts' }, function() { refreshCurrentView(); })
         .subscribe();
-      supabase.channel('comments-changes')
+      window.supabase.channel('comments-changes')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'comments' }, function(p) {
           if (state.page==='detail' && state.selectedPostId===p.new.post_id) refreshCurrentView();
         }).subscribe();
-      supabase.channel('likes-changes')
+      window.supabase.channel('likes-changes')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'likes' }, function() { if(state.page==='detail') refreshCurrentView(); })
         .subscribe();
     }
@@ -295,36 +295,36 @@ function setConnStatus(s) {
     async function refreshCurrentView() { if(!isCloudEnabled) return render(); showLoading(); try { if(state.page==='all'||state.page==='categoryPosts') await loadPosts(); else if(state.page==='detail') await loadPostDetail(state.selectedPostId); } finally { hideLoading(); render(); } }
     async function loadPosts() {
       if (!isCloudEnabled) { cachedPosts = readLocal(STORAGE_KEYS.posts, []); return; }
-      var q = supabase.from('posts').select('*').order('created_at', { ascending: false });
+      var q = window.supabase.from('posts').select('*').order('created_at', { ascending: false });
       if (state.selectedCategory) q = q.eq('category', state.selectedCategory);
       var r = await q;
       cachedPosts = r.data || [];
     }
     async function loadCommentsForPost(postId) {
       if (!isCloudEnabled) { cachedComments = readLocal(STORAGE_KEYS.comments, []).filter(function(c){ return (c.post_id||c.postId)===postId; }); return; }
-      var r = await supabase.from('comments').select('*').eq('post_id', postId).order('created_at', { ascending: true });
+      var r = await window.supabase.from('comments').select('*').eq('post_id', postId).order('created_at', { ascending: true });
       cachedComments = r.data || [];
     }
     async function loadLikes() {
       if (!isCloudEnabled) { cachedLikes = readLocal(STORAGE_KEYS.likes, []); return; }
       var uid = getUser().id;
-      var r = await supabase.from('likes').select('*').eq('user_id', uid);
+      var r = await window.supabase.from('likes').select('*').eq('user_id', uid);
       cachedLikes = r.data || [];
     }
     async function loadPostDetail(postId) {
       if (!isCloudEnabled) return;
-      var r = await supabase.from('posts').select('*').eq('id', postId).single();
+      var r = await window.supabase.from('posts').select('*').eq('id', postId).single();
       if (r.data) { var idx = cachedPosts.findIndex(function(p){ return p.id===postId; }); if(idx>=0) cachedPosts[idx]=r.data; }
       await loadCommentsForPost(postId); await loadLikes();
     }
     async function syncUser(user) {
       if (!isCloudEnabled) return;
-      try { await supabase.from('users').upsert({ id: user.id, name: user.name, avatar: user.avatar||'', created_at: new Date(user.createdAt).toISOString() }); }
+      try { await window.supabase.from('users').upsert({ id: user.id, name: user.name, avatar: user.avatar||'', created_at: new Date(user.createdAt).toISOString() }); }
       catch(e){ console.warn('user sync fail:', e); }
     }
     async function createPost(post) {
       if (!isCloudEnabled) { var ps = readLocal(STORAGE_KEYS.posts,[]); ps.push(post); writeLocal(STORAGE_KEYS.posts,ps); cachedPosts=ps; return; }
-      var r = await supabase.from('posts').insert({ user_id: post.userId, user_name: post.userName, user_avatar: post.userAvatar||'', title: post.title, category: post.category, content: post.content });
+      var r = await window.supabase.from('posts').insert({ user_id: post.userId, user_name: post.userName, user_avatar: post.userAvatar||'', title: post.title, category: post.category, content: post.content });
       if (r.error) throw r.error;
     }
     async function deletePost(postId) {
@@ -335,22 +335,22 @@ function setConnStatus(s) {
         writeLocal(STORAGE_KEYS.posts,ps); writeLocal(STORAGE_KEYS.comments,cs); writeLocal(STORAGE_KEYS.likes,ls);
         cachedPosts=ps; return;
       }
-      var r = await supabase.from('posts').delete().eq('id', postId);
+      var r = await window.supabase.from('posts').delete().eq('id', postId);
       if (r.error) throw r.error;
     }
     async function createComment(comment) {
       if (!isCloudEnabled) { var cs = readLocal(STORAGE_KEYS.comments,[]); cs.push(comment); writeLocal(STORAGE_KEYS.comments,cs); cachedComments=cs; return; }
-      var r = await supabase.from('comments').insert({ post_id: comment.postId, user_id: comment.userId, user_name: comment.userName, content: comment.content });
+      var r = await window.supabase.from('comments').insert({ post_id: comment.postId, user_id: comment.userId, user_name: comment.userName, content: comment.content });
       if (r.error) throw r.error;
     }
     async function toggleLikeCloud(postId) {
       if (!isCloudEnabled) return;
       var user = getUser();
-      var existing = await supabase.from('likes').select('*').eq('post_id',postId).eq('user_id',user.id).maybeSingle();
-      if (existing.data) { await supabase.from('likes').delete().eq('id',existing.data.id); }
-      else { await supabase.from('likes').insert({ post_id: postId, user_id: user.id }); }
+      var existing = await window.supabase.from('likes').select('*').eq('post_id',postId).eq('user_id',user.id).maybeSingle();
+      if (existing.data) { await window.supabase.from('likes').delete().eq('id',existing.data.id); }
+      else { await window.supabase.from('likes').insert({ post_id: postId, user_id: user.id }); }
       await loadLikes();
-      var r2 = await supabase.from('posts').select('*').eq('id',postId).single();
+      var r2 = await window.supabase.from('posts').select('*').eq('id',postId).single();
       if (r2.data) { var idx = cachedPosts.findIndex(function(p){ return p.id===postId; }); if(idx>=0) cachedPosts[idx]=r2.data; }
     }
     function readLocal(key, fb) { try { return JSON.parse(localStorage.getItem(key))||fb; } catch(e) { return fb; } }
@@ -389,7 +389,7 @@ function setConnStatus(s) {
     function navigate(page, opts, push) { opts=opts||{}; push=push===undefined?true:push; if(push&&state.page!==page) state.history.push({page:state.page,selectedPostId:state.selectedPostId,selectedCategory:state.selectedCategory,title:state.title}); state.page=page; state.selectedPostId=opts.postId||null; state.selectedCategory=opts.category||null; var t={all:'全部',categories:'分类',me:'我的',detail:'帖子详情',categoryPosts:opts.category||'分类帖子'}; state.title=t[page]||'xicaiwall'; startPage(); }
     function goBack() { var prev=state.history.pop(); if(!prev){ navigate('all',{},false); return; } state.page=prev.page; state.selectedPostId=prev.selectedPostId; state.selectedCategory=prev.selectedCategory; state.title=prev.title; startPage(); }
     async function startPage() { showLoading(); try { if(state.page==='all'){ await loadPosts(); await loadLikes(); } if(state.page==='categoryPosts'){ await loadPosts(); await loadLikes(); } if(state.page==='detail'){ await loadPosts(); await loadCommentsForPost(state.selectedPostId); await loadLikes(); } if(state.page==='categories'){ await loadPosts(); } if(state.page==='me'){ await loadPosts(); await loadLikes(); loadCommentsForMe(); } } finally { hideLoading(); render(); } }
-    function loadCommentsForMe() { if(!isCloudEnabled){ cachedComments=readLocal(STORAGE_KEYS.comments,[]); return; } supabase.from('comments').select('*').eq('user_id',getUser().id).order('created_at',{ascending:false}).then(function(r){ cachedComments=r.data||[]; render(); }); }
+    function loadCommentsForMe() { if(!isCloudEnabled){ cachedComments=readLocal(STORAGE_KEYS.comments,[]); return; } window.supabase.from('comments').select('*').eq('user_id',getUser().id).order('created_at',{ascending:false}).then(function(r){ cachedComments=r.data||[]; render(); }); }
     function render() {
       document.getElementById('pageTitle').textContent=state.title;
       var bb=document.getElementById('backBtn'), pb=document.getElementById('publishBtn');
