@@ -249,10 +249,10 @@
     function initCloud(){
       fetch(SUPABASE_URL+'/rest/v1/posts?select=count',{headers:{apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+SUPABASE_ANON_KEY,Accept:'application/json'}}).then(function(r){
         if(r.ok){isCloudOnline=true;loadCloudPosts();_pollTimer=setInterval(loadCloudPosts,8000)}
-      }).catch(function(){});
+      }).catch(function(e){console.log('Cloud init fail:',e)});
     }
     function loadCloudPosts(){
-      fetch(SUPABASE_URL+'/rest/v1/posts?select=*&order=created_at.desc',{headers:{apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+SUPABASE_ANON_KEY}}).then(function(r){return r.json()}).then(function(posts){if(posts&&posts.length){var old=getPosts();setPosts(posts);if(!old.length||old.length!==posts.length)render()}}).catch(function(){});
+      fetch(SUPABASE_URL+'/rest/v1/posts?select=*&order=created_at.desc',{headers:{apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+SUPABASE_ANON_KEY}}).then(function(r){return r.json()}).then(function(posts){if(posts&&posts.length){var old=getPosts();setPosts(posts);if(!old.length||old.length!==posts.length)render()}}).catch(function(e){console.log('Cloud init fail:',e)});
     }
     function sendToCloud(method,path,body){
       var o={method:method,headers:{apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+SUPABASE_ANON_KEY,'Content-Type':'application/json'}};
