@@ -215,41 +215,7 @@
   </div>
 
   <script>
-        const SUPABASE_URL = 'https://pupvnkqfljlkubohczbm.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_RlCTDg_FOPBpvfw9bfkB9Q_WIY9X6tl';
-    let isCloudOnline = false;
-    (async function checkCloud(){
-      try{
-        var r=await fetch(SUPABASE_URL+'/rest/v1/posts?select=count',{headers:{apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+SUPABASE_ANON_KEY}});
-        if(r.ok){isCloudOnline=true;loadCloudPosts();setInterval(loadCloudPosts,8000)}
-      }catch(e){}
-    })();
-    async function loadCloudPosts(){
-      var r=await fetch(SUPABASE_URL+'/rest/v1/posts?select=*&order=created_at.desc',{headers:{apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+SUPABASE_ANON_KEY}});
-      var posts=await r.json();
-      if(posts.length){setPosts(posts);render()}
-    }
-    async function syncUserToCloud(u){
-      fetch(SUPABASE_URL+'/rest/v1/users',{method:'POST',headers:{apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+SUPABASE_ANON_KEY,'Content-Type':'application/json'},body:JSON.stringify({id:u.id,name:u.name,avatar:u.avatar||''})}).catch(function(){});
-    }
-    async function createPostCloud(p){
-      fetch(SUPABASE_URL+'/rest/v1/posts',{method:'POST',headers:{apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+SUPABASE_ANON_KEY,'Content-Type':'application/json'},body:JSON.stringify({user_id:p.userId,user_name:p.userName,user_avatar:p.userAvatar||'',title:p.title,category:p.category,content:p.content})}).catch(function(){});
-    }
-    async function deletePostCloud(id){
-      fetch(SUPABASE_URL+'/rest/v1/posts?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:{apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+SUPABASE_ANON_KEY}}).catch(function(){});
-    }
-    async function createCommentCloud(c){
-      fetch(SUPABASE_URL+'/rest/v1/comments',{method:'POST',headers:{apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+SUPABASE_ANON_KEY,'Content-Type':'application/json'},body:JSON.stringify({post_id:c.postId,user_id:c.userId,user_name:c.userName,content:c.content})}).catch(function(){});
-    }
-    async function toggleLikeCloud(pid,uid,add){
-      if(add){
-        fetch(SUPABASE_URL+'/rest/v1/likes',{method:'POST',headers:{apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+SUPABASE_ANON_KEY,'Content-Type':'application/json'},body:JSON.stringify({post_id:pid,user_id:uid})}).catch(function(){});
-      }else{
-        fetch(SUPABASE_URL+'/rest/v1/likes?post_id=eq.'+encodeURIComponent(pid)+'&user_id=eq.'+encodeURIComponent(uid),{method:'DELETE',headers:{apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+SUPABASE_ANON_KEY}}).catch(function(){});
-      }
-    }
-
-// =========================
+    // =========================
     // 基础数据与 localStorage
     // =========================
     const STORAGE_KEYS = {
@@ -302,7 +268,7 @@
           avatar: "",
           createdAt: Date.now()
         };
-        write(STORAGE_KEYS.user, user); if(isCloudOnline)syncUserToCloud(user);
+        write(STORAGE_KEYS.user, user);
       }
       return user;
     }
