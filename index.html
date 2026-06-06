@@ -324,7 +324,7 @@ function setConnStatus(s) {
     }
     async function createPost(post) {
       if (!isCloudEnabled) { var ps = readLocal(STORAGE_KEYS.posts,[]); ps.push(post); writeLocal(STORAGE_KEYS.posts,ps); cachedPosts=ps; return; }
-      await window.supabase.from('users').upsert({id:post.userId,name:post.userName,avatar:post.userAvatar||''});
+      await fetch(SUPABASE_URL+'/rest/v1/users',{method:'POST',headers:{apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+SUPABASE_ANON_KEY,'Content-Type':'application/json'},body:JSON.stringify({id:post.userId,name:post.userName,avatar:post.userAvatar||''})}).catch(function(){});
       var r = await window.supabase.from('posts').insert({ user_id: post.userId, user_name: post.userName, user_avatar: post.userAvatar||'', title: post.title, category: post.category, content: post.content });
       if (r.error) throw r.error;
     }
