@@ -172,7 +172,7 @@
   setTimeout(function(){
     if(!window._supabaseReady && typeof window.supabase==='undefined'){
       var s=document.createElement('script');
-      s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/window.supabase.min.js';
+      s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.min.js';
       s.onload=function(){window._supabaseReady=true};
       document.head.appendChild(s);
     }
@@ -181,7 +181,7 @@
     <script>
     // Built-in fetch-based Supabase client - zero CDN dependency
     (function(){
-      var URL="https://pupvnkqfljlkubohczbm.window.supabase.co";
+      var URL="https://pupvnkqfljlkubohczbm.supabase.co";
       var KEY="sb_publishable_RlCTDg_FOPBpvfw9bfkB9Q_WIY9X6tl";
       var H={"apikey":KEY,"Authorization":"Bearer "+KEY,"Content-Type":"application/json"};
       function api(m,path,body){
@@ -221,7 +221,7 @@
     // ║  xicaiwall · 前端                              ║
     // ║  双模：Supabase（云端实时）↔ localStorage（离线降级）    ║
     // ╚══════════════════════════════════════════════════════════╝
-    const SUPABASE_URL = 'https://pupvnkqfljlkubohczbm.window.supabase.co';
+    const SUPABASE_URL = 'https://pupvnkqfljlkubohczbm.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_RlCTDg_FOPBpvfw9bfkB9Q_WIY9X6tl';
     const categories = [
       { name: "学习交流", icon: "fa-book-open", color: "bg-blue-50 text-campus" },
