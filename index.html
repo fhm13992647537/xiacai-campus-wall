@@ -85,59 +85,59 @@
 <body class="text-slate-800">
   <div id="app" class="min-h-screen max-w-md mx-auto bg-slate-50 relative overflow-hidden">
     <div id="connBar" class="hidden text-center text-[11px] py-1.5" style="background:#FFF3E0;color:#E65100;">
-      <span class="conn-dot offline"></span> ???? ? ????????
+      <span class="conn-dot offline"></span> 离线模式 · 数据仅保存在本地
     </div>
     <header id="mainHeader" class="sticky top-0 z-30 w-full bg-white/95 backdrop-blur border-b border-slate-100 flex items-center justify-between px-4 h-14">
       <button id="backBtn" class="hidden w-9 h-9 rounded-full hover:bg-slate-100 active:bg-slate-200 pressable transition">
         <i class="fa-solid fa-chevron-left text-slate-700"></i>
       </button>
-      <h1 id="pageTitle" class="text-lg font-bold text-slate-900 flex-1 truncate">??</h1>
+      <h1 id="pageTitle" class="text-lg font-bold text-slate-900 flex-1 truncate">全部</h1>
       <div class="flex items-center gap-2">
-        <span id="connDot" class="conn-dot offline" title="????"></span>
+        <span id="connDot" class="conn-dot offline" title="离线模式"></span>
         <button id="publishBtn" class="w-9 h-9 rounded-full bg-campus text-white shadow-md shadow-blue-200 hover:bg-blue-700 active:bg-blue-800 pressable transition">
           <i class="fa-solid fa-plus"></i>
         </button>
       </div>
     </header>
     <div id="newPostToast" class="new-post-toast hidden" onclick="loadNewPosts()">
-      <i class="fa-solid fa-arrow-down mr-2"></i>?????????
+      <i class="fa-solid fa-arrow-down mr-2"></i>有新帖子，点击查看
     </div>
     <main id="view" class="pt-2 px-4 safe-bottom"></main>
     <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 z-30 w-full max-w-md h-14 bg-white border-t border-slate-100 grid grid-cols-3 shadow-[0_-8px_20px_rgba(15,23,42,0.04)]">
       <button data-tab="all" class="tabBtn flex flex-col items-center justify-center gap-0.5 text-xs pressable transition">
-        <i class="fa-solid fa-home text-lg"></i><span>??</span>
+        <i class="fa-solid fa-home text-lg"></i><span>全部</span>
       </button>
       <button data-tab="categories" class="tabBtn flex flex-col items-center justify-center gap-0.5 text-xs pressable transition">
-        <i class="fa-solid fa-th-large text-lg"></i><span>??</span>
+        <i class="fa-solid fa-th-large text-lg"></i><span>分类</span>
       </button>
       <button data-tab="me" class="tabBtn flex flex-col items-center justify-center gap-0.5 text-xs pressable transition">
-        <i class="fa-solid fa-user text-lg"></i><span>??</span>
+        <i class="fa-solid fa-user text-lg"></i><span>我的</span>
       </button>
     </nav>
     <div id="postModal" class="hidden fixed inset-0 z-40 max-w-md mx-auto">
       <div class="modal-mask absolute inset-0 bg-slate-900/35"></div>
       <section class="modal-panel absolute left-0 right-0 bottom-0 bg-white rounded-t-2xl p-4 max-h-[88vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-bold">????</h2>
+          <h2 class="text-lg font-bold">发布帖子</h2>
           <button id="closePostModal" class="w-9 h-9 rounded-full hover:bg-slate-100 active:bg-slate-200 pressable transition">
             <i class="fa-solid fa-xmark text-lg"></i>
           </button>
         </div>
         <form id="postForm" class="space-y-4">
           <div>
-            <label class="text-sm font-medium text-slate-700">??</label>
-            <input id="postTitle" class="mt-2 w-full h-11 rounded-xl border border-slate-200 px-3 outline-none focus:border-campus focus:ring-2 focus:ring-blue-100" maxlength="40" placeholder="????????" />
+            <label class="text-sm font-medium text-slate-700">标题</label>
+            <input id="postTitle" class="mt-2 w-full h-11 rounded-xl border border-slate-200 px-3 outline-none focus:border-campus focus:ring-2 focus:ring-blue-100" maxlength="40" placeholder="写一个清楚的标题" />
           </div>
           <div>
-            <label class="text-sm font-medium text-slate-700">??</label>
+            <label class="text-sm font-medium text-slate-700">分类</label>
             <select id="postCategory" class="mt-2 w-full h-11 rounded-xl border border-slate-200 px-3 bg-white outline-none focus:border-campus focus:ring-2 focus:ring-blue-100"></select>
           </div>
           <div>
-            <label class="text-sm font-medium text-slate-700">??</label>
-            <textarea id="postContent" class="mt-2 w-full min-h-36 rounded-xl border border-slate-200 p-3 outline-none resize-none focus:border-campus focus:ring-2 focus:ring-blue-100" maxlength="1000" placeholder="??????????"></textarea>
+            <label class="text-sm font-medium text-slate-700">正文</label>
+            <textarea id="postContent" class="mt-2 w-full min-h-36 rounded-xl border border-slate-200 p-3 outline-none resize-none focus:border-campus focus:ring-2 focus:ring-blue-100" maxlength="1000" placeholder="分享校园里的新鲜事吧"></textarea>
           </div>
           <p id="postError" class="hidden text-sm text-red-500"></p>
-          <button class="w-full h-12 rounded-xl bg-campus text-white font-semibold hover:bg-blue-700 active:bg-blue-800 pressable transition">??</button>
+          <button class="w-full h-12 rounded-xl bg-campus text-white font-semibold hover:bg-blue-700 active:bg-blue-800 pressable transition">发布</button>
         </form>
       </section>
     </div>
@@ -145,22 +145,22 @@
       <div class="modal-mask absolute inset-0 bg-slate-900/35"></div>
       <section class="modal-panel absolute left-0 right-0 bottom-0 bg-white rounded-t-2xl p-4">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-bold">????</h2>
+          <h2 class="text-lg font-bold">编辑资料</h2>
           <button id="closeProfileModal" class="w-9 h-9 rounded-full hover:bg-slate-100 active:bg-slate-200 pressable transition">
             <i class="fa-solid fa-xmark text-lg"></i>
           </button>
         </div>
         <form id="profileForm" class="space-y-4">
           <div>
-            <label class="text-sm font-medium text-slate-700">??</label>
+            <label class="text-sm font-medium text-slate-700">昵称</label>
             <input id="profileName" class="mt-2 w-full h-11 rounded-xl border border-slate-200 px-3 outline-none focus:border-campus focus:ring-2 focus:ring-blue-100" maxlength="16" />
           </div>
           <div>
-            <label class="text-sm font-medium text-slate-700">???? URL</label>
-            <input id="profileAvatar" class="mt-2 w-full h-11 rounded-xl border border-slate-200 px-3 outline-none focus:border-campus focus:ring-2 focus:ring-blue-100" placeholder="?????????" />
+            <label class="text-sm font-medium text-slate-700">头像图片 URL</label>
+            <input id="profileAvatar" class="mt-2 w-full h-11 rounded-xl border border-slate-200 px-3 outline-none focus:border-campus focus:ring-2 focus:ring-blue-100" placeholder="可留空使用默认头像" />
           </div>
           <p id="profileError" class="hidden text-sm text-red-500"></p>
-          <button class="w-full h-12 rounded-xl bg-campus text-white font-semibold hover:bg-blue-700 active:bg-blue-800 pressable transition">??</button>
+          <button class="w-full h-12 rounded-xl bg-campus text-white font-semibold hover:bg-blue-700 active:bg-blue-800 pressable transition">保存</button>
         </form>
       </section>
     </div>
@@ -170,19 +170,19 @@
   </div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/umd/supabase.min.js"></script>
   <script>
-    // ????????????????????????????????????????????????????????????
-    // ?  xicaiwall ? ??                              ?
-    // ?  ???Supabase??????? localStorage??????    ?
-    // ????????????????????????????????????????????????????????????
+    // ╔══════════════════════════════════════════════════════════╗
+    // ║  xicaiwall · 前端                              ║
+    // ║  双模：Supabase（云端实时）↔ localStorage（离线降级）    ║
+    // ╚══════════════════════════════════════════════════════════╝
     const SUPABASE_URL = 'https://pupvnkqfljlkubohczbm.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_RlCTDg_FOPBpvfw9bfkB9Q_WIY9X6tl';
     const categories = [
-      { name: "????", icon: "fa-book-open", color: "bg-blue-50 text-campus" },
-      { name: "????", icon: "fa-magnifying-glass", color: "bg-green-50 text-campusGreen" },
-      { name: "????", icon: "fa-bag-shopping", color: "bg-orange-50 text-campusOrange" },
-      { name: "????", icon: "fa-calendar-days", color: "bg-pink-50 text-pink-500" },
-      { name: "????", icon: "fa-comments", color: "bg-purple-50 text-purple-500" },
-      { name: "??", icon: "fa-seedling", color: "bg-slate-100 text-slate-600" }
+      { name: "学习交流", icon: "fa-book-open", color: "bg-blue-50 text-campus" },
+      { name: "失物招领", icon: "fa-magnifying-glass", color: "bg-green-50 text-campusGreen" },
+      { name: "二手交易", icon: "fa-bag-shopping", color: "bg-orange-50 text-campusOrange" },
+      { name: "校园活动", icon: "fa-calendar-days", color: "bg-pink-50 text-pink-500" },
+      { name: "吐槽求助", icon: "fa-comments", color: "bg-purple-50 text-purple-500" },
+      { name: "其他", icon: "fa-seedling", color: "bg-slate-100 text-slate-600" }
     ];
     const STORAGE_KEYS = {
       user: "campus_forum_user",
@@ -197,7 +197,7 @@
     let cachedPosts = [];
     let cachedComments = [];
     let cachedLikes = [];
-    let state = { page: 'all', title: '??', selectedPostId: null, selectedCategory: null, history: [] };
+    let state = { page: 'all', title: '全部', selectedPostId: null, selectedCategory: null, history: [] };
 
     function initSupabase() {
       if (SUPABASE_URL && SUPABASE_ANON_KEY) {
@@ -228,10 +228,10 @@
       var d = document.getElementById('connDot');
       var b = document.getElementById('connBar');
       d.className = 'conn-dot ' + s;
-      if (s === 'online') { d.title = '????? ? ?????'; b.classList.add('hidden'); }
-      else if (s === 'offline') { d.title = '????'; b.classList.remove('hidden'); b.style.background='#FFF3E0'; b.style.color='#E65100'; b.innerHTML='<span class="conn-dot offline"></span> ???? ? ???????'; }
-      else if (s === 'loading') { d.title = '??????...'; b.classList.remove('hidden'); b.style.background='#FFF8E1'; b.style.color='#F57F17'; b.innerHTML='<span class="conn-dot loading"></span> ??????...'; }
-      else if (s === 'error') { d.title = '??????'; b.classList.remove('hidden'); b.style.background='#FFEBEE'; b.style.color='#C62828'; b.innerHTML='<span class="conn-dot error"></span> ?????? ? ???????'; }
+      if (s === 'online') { d.title = '云端已连接 · 实时同步中'; b.classList.add('hidden'); }
+      else if (s === 'offline') { d.title = '离线模式'; b.classList.remove('hidden'); b.style.background='#FFF3E0'; b.style.color='#E65100'; b.innerHTML='<span class="conn-dot offline"></span> 离线模式 · 数据保存在本地'; }
+      else if (s === 'loading') { d.title = '正在连接云端...'; b.classList.remove('hidden'); b.style.background='#FFF8E1'; b.style.color='#F57F17'; b.innerHTML='<span class="conn-dot loading"></span> 正在连接云端...'; }
+      else if (s === 'error') { d.title = '云端连接失败'; b.classList.remove('hidden'); b.style.background='#FFEBEE'; b.style.color='#C62828'; b.innerHTML='<span class="conn-dot error"></span> 云端连接失败 · 降级到离线模式'; }
     }
     function subscribeRealtime() {
       if (!supabase || !isCloudEnabled) return;
@@ -255,7 +255,7 @@
     function showNewPostToast() {
       var t = document.getElementById('newPostToast');
       t.classList.remove('hidden','hiding');
-      t.innerHTML = '<i class="fa-solid fa-arrow-down mr-2"></i>? <b>'+newPostCount+'</b> ?????????';
+      t.innerHTML = '<i class="fa-solid fa-arrow-down mr-2"></i>有 <b>'+newPostCount+'</b> 条新帖子，点击查看';
       clearTimeout(t._timeout);
       t._timeout = setTimeout(function(){ t.classList.add('hiding'); setTimeout(function(){ t.classList.add('hidden'); },250); },6000);
     }
@@ -327,7 +327,7 @@
       var user = readLocal(STORAGE_KEYS.user, null);
       if (!user) {
         var num = Math.floor(1000+Math.random()*9000);
-        user = { id: 'user_'+Date.now()+'_'+Math.random().toString(16).slice(2), name: '??'+num, avatar: '', createdAt: Date.now() };
+        user = { id: 'user_'+Date.now()+'_'+Math.random().toString(16).slice(2), name: '同学'+num, avatar: '', createdAt: Date.now() };
         writeLocal(STORAGE_KEYS.user, user);
         if (isCloudEnabled) syncUser(user);
       }
@@ -340,21 +340,21 @@
     function formatTime(ts) {
       var diff = Date.now() - (typeof ts==='string' ? new Date(ts).getTime() : ts);
       var m=60000, h=60*m, d=24*h;
-      if (diff<m) return '??';
-      if (diff<h) return Math.floor(diff/m)+'???';
-      if (diff<d) return Math.floor(diff/h)+'???';
-      if (diff<d*7) return Math.floor(diff/d)+'??';
+      if (diff<m) return '刚刚';
+      if (diff<h) return Math.floor(diff/m)+'分钟前';
+      if (diff<d) return Math.floor(diff/h)+'小时前';
+      if (diff<d*7) return Math.floor(diff/d)+'天前';
       var dt=new Date(ts);
       return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
     }
     function avatarHTML(name, av, sz) { sz=sz||'w-10 h-10'; if(av) return '<img src="'+escapeHTML(av)+'" onerror="this.outerHTML=defaultAvatar(\''+escapeHTML(name)+'\',\''+sz+'\')" class="'+sz+' rounded-full object-cover bg-slate-100" alt="'+escapeHTML(name)+'">'; return defaultAvatar(name,sz); }
-    function defaultAvatar(name, sz) { sz=sz||'w-10 h-10'; return '<div class="'+sz+' rounded-full bg-gradient-to-br from-campus to-campusGreen text-white flex items-center justify-center font-bold">'+escapeHTML((name||'?').slice(0,1))+'</div>'; }
+    function defaultAvatar(name, sz) { sz=sz||'w-10 h-10'; return '<div class="'+sz+' rounded-full bg-gradient-to-br from-campus to-campusGreen text-white flex items-center justify-center font-bold">'+escapeHTML((name||'同').slice(0,1))+'</div>'; }
     function showLoading() { var e=document.getElementById('loading'); e.classList.remove('hidden'); e.classList.add('flex'); }
     function hideLoading() { var e=document.getElementById('loading'); e.classList.add('hidden'); e.classList.remove('flex'); }
     function commentsForPost(pid) { return getComments().filter(function(c){ return (c.post_id||c.postId)===pid; }); }
     function likedByMe(pid) { var u=getUser(); return getLikes().some(function(l){ return (l.post_id||l.postId)===pid && (l.user_id||l.userId)===u.id; }); }
     function emptyState(txt, ic) { ic=ic||'fa-message'; return '<div class="py-16 text-center text-slate-400"><div class="mx-auto mb-4 w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center"><i class="fa-solid '+ic+' text-2xl"></i></div><p class="text-sm">'+txt+'</p></div>'; }
-    function navigate(page, opts, push) { opts=opts||{}; push=push===undefined?true:push; if(push&&state.page!==page) state.history.push({page:state.page,selectedPostId:state.selectedPostId,selectedCategory:state.selectedCategory,title:state.title}); state.page=page; state.selectedPostId=opts.postId||null; state.selectedCategory=opts.category||null; var t={all:'??',categories:'??',me:'??',detail:'????',categoryPosts:opts.category||'????'}; state.title=t[page]||'xicaiwall'; startPage(); }
+    function navigate(page, opts, push) { opts=opts||{}; push=push===undefined?true:push; if(push&&state.page!==page) state.history.push({page:state.page,selectedPostId:state.selectedPostId,selectedCategory:state.selectedCategory,title:state.title}); state.page=page; state.selectedPostId=opts.postId||null; state.selectedCategory=opts.category||null; var t={all:'全部',categories:'分类',me:'我的',detail:'帖子详情',categoryPosts:opts.category||'分类帖子'}; state.title=t[page]||'xicaiwall'; startPage(); }
     function goBack() { var prev=state.history.pop(); if(!prev){ navigate('all',{},false); return; } state.page=prev.page; state.selectedPostId=prev.selectedPostId; state.selectedCategory=prev.selectedCategory; state.title=prev.title; startPage(); }
     async function startPage() { showLoading(); try { if(state.page==='all'){ await loadPosts(); await loadLikes(); } if(state.page==='categoryPosts'){ await loadPosts(); await loadLikes(); } if(state.page==='detail'){ await loadPosts(); await loadCommentsForPost(state.selectedPostId); await loadLikes(); } if(state.page==='categories'){ await loadPosts(); } if(state.page==='me'){ await loadPosts(); await loadLikes(); loadCommentsForMe(); } } finally { hideLoading(); render(); } }
     function loadCommentsForMe() { if(!isCloudEnabled){ cachedComments=readLocal(STORAGE_KEYS.comments,[]); return; } supabase.from('comments').select('*').eq('user_id',getUser().id).order('created_at',{ascending:false}).then(function(r){ cachedComments=r.data||[]; render(); }); }
@@ -379,11 +379,11 @@
     }
     function renderAllPage() {
       var posts=getPosts().sort(function(a,b){ return (typeof b.created_at==='string'?new Date(b.created_at).getTime():b.createdAt||b.created_at) - (typeof a.created_at==='string'?new Date(a.created_at).getTime():a.createdAt||a.created_at); });
-      return '<section class="space-y-3">'+(posts.length?posts.map(renderPostCard).join(''):emptyState('??????????????','fa-pen'))+'</section>';
+      return '<section class="space-y-3">'+(posts.length?posts.map(renderPostCard).join(''):emptyState('还没有帖子，快来发布第一条吧','fa-pen'))+'</section>';
     }
     function renderCategoryPostsPage() {
       var posts=getPosts().filter(function(p){ return p.category===state.selectedCategory; }).sort(function(a,b){ return (typeof b.created_at==='string'?new Date(b.created_at).getTime():b.createdAt||b.created_at) - (typeof a.created_at==='string'?new Date(a.created_at).getTime():a.createdAt||a.created_at); });
-      return '<section class="mb-4 rounded-2xl bg-gradient-to-r from-blue-600 to-emerald-500 p-4 text-white"><p class="text-sm opacity-90">????</p><h2 class="mt-1 text-xl font-bold">'+escapeHTML(state.selectedCategory)+'</h2></section><section class="space-y-3">'+(posts.length?posts.map(renderPostCard).join(''):emptyState('?????????','fa-folder-open'))+'</section>';
+      return '<section class="mb-4 rounded-2xl bg-gradient-to-r from-blue-600 to-emerald-500 p-4 text-white"><p class="text-sm opacity-90">当前分类</p><h2 class="mt-1 text-xl font-bold">'+escapeHTML(state.selectedCategory)+'</h2></section><section class="space-y-3">'+(posts.length?posts.map(renderPostCard).join(''):emptyState('这个分类还没有帖子','fa-folder-open'))+'</section>';
     }
     function renderPostCard(post) {
       var cc=commentsForPost(post.id).length;
@@ -393,23 +393,23 @@
       var nm=post.user_name||post.userName;
       var av=post.user_avatar||post.userAvatar||'';
       var lc=post.likes_count!==undefined?post.likes_count:(post.likes||0);
-      return '<article onclick="openPost(\''+post.id+'\')" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 pressable transition hover:shadow-md"><div class="flex items-center gap-3">'+avatarHTML(nm,av)+'<div class="min-w-0 flex-1"><p class="font-semibold text-sm truncate">'+escapeHTML(nm)+'</p><p class="text-xs text-slate-400">'+formatTime(ts)+' ? '+escapeHTML(post.category)+'</p></div></div><h2 class="mt-3 font-bold text-slate-900 leading-snug">'+escapeHTML(post.title)+'</h2><p class="mt-2 text-sm text-slate-600 line-clamp-2 leading-6">'+escapeHTML(ex)+'</p><div class="mt-3 flex items-center gap-5 text-sm text-slate-400"><span><i class="fa-regular fa-thumbs-up mr-1"></i>'+lc+'</span><span><i class="fa-regular fa-comment mr-1"></i>'+cc+'</span></div></article>';
+      return '<article onclick="openPost(\''+post.id+'\')" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 pressable transition hover:shadow-md"><div class="flex items-center gap-3">'+avatarHTML(nm,av)+'<div class="min-w-0 flex-1"><p class="font-semibold text-sm truncate">'+escapeHTML(nm)+'</p><p class="text-xs text-slate-400">'+formatTime(ts)+' · '+escapeHTML(post.category)+'</p></div></div><h2 class="mt-3 font-bold text-slate-900 leading-snug">'+escapeHTML(post.title)+'</h2><p class="mt-2 text-sm text-slate-600 line-clamp-2 leading-6">'+escapeHTML(ex)+'</p><div class="mt-3 flex items-center gap-5 text-sm text-slate-400"><span><i class="fa-regular fa-thumbs-up mr-1"></i>'+lc+'</span><span><i class="fa-regular fa-comment mr-1"></i>'+cc+'</span></div></article>';
     }
     window.openPost=function(pid){ navigate('detail',{postId:pid}); };
     function renderCategoriesPage() {
-      return '<section class="grid grid-cols-2 gap-3">'+categories.map(function(cat){ var cnt=getPosts().filter(function(p){ return p.category===cat.name; }).length; return '<button onclick="openCategory(\''+cat.name+'\')" class="bg-white rounded-2xl p-4 text-left border border-slate-100 shadow-sm pressable transition hover:shadow-md"><div class="w-11 h-11 rounded-2xl '+cat.color+' flex items-center justify-center mb-4"><i class="fa-solid '+cat.icon+' text-xl"></i></div><h2 class="font-bold">'+cat.name+'</h2><p class="mt-1 text-xs text-slate-400">'+cnt+' ???</p></button>'; }).join('')+'</section>';
+      return '<section class="grid grid-cols-2 gap-3">'+categories.map(function(cat){ var cnt=getPosts().filter(function(p){ return p.category===cat.name; }).length; return '<button onclick="openCategory(\''+cat.name+'\')" class="bg-white rounded-2xl p-4 text-left border border-slate-100 shadow-sm pressable transition hover:shadow-md"><div class="w-11 h-11 rounded-2xl '+cat.color+' flex items-center justify-center mb-4"><i class="fa-solid '+cat.icon+' text-xl"></i></div><h2 class="font-bold">'+cat.name+'</h2><p class="mt-1 text-xs text-slate-400">'+cnt+' 条帖子</p></button>'; }).join('')+'</section>';
     }
     window.openCategory=function(cat){ navigate('categoryPosts',{category:cat}); };
     function renderDetailPage() {
       var post=getPosts().find(function(p){ return p.id===state.selectedPostId; });
-      if(!post) return emptyState('??????????','fa-circle-exclamation');
+      if(!post) return emptyState('帖子不存在或已被删除','fa-circle-exclamation');
       var comments=commentsForPost(post.id).sort(function(a,b){ return (typeof a.created_at==='string'?new Date(a.created_at).getTime():a.createdAt) - (typeof b.created_at==='string'?new Date(b.created_at).getTime():b.createdAt); });
       var isLiked=likedByMe(post.id);
       var ts=post.created_at||post.createdAt;
       var nm=post.user_name||post.userName;
       var av=post.user_avatar||post.userAvatar||'';
       var lc=post.likes_count!==undefined?post.likes_count:(post.likes||0);
-      return '<article class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm"><div class="flex items-center gap-3">'+avatarHTML(nm,av)+'<div class="min-w-0 flex-1"><p class="font-semibold text-sm truncate">'+escapeHTML(nm)+'</p><p class="text-xs text-slate-400">'+formatTime(ts)+' ? '+escapeHTML(post.category)+'</p></div></div><h2 class="mt-4 text-xl font-bold leading-snug text-slate-950">'+escapeHTML(post.title)+'</h2><p class="mt-3 text-[15px] leading-7 whitespace-pre-wrap text-slate-700">'+escapeHTML(post.content)+'</p><button onclick="toggleLike(\''+post.id+'\')" class="mt-5 h-10 px-4 rounded-full '+(isLiked?'bg-blue-50 text-campus':'bg-slate-100 text-slate-500')+' pressable transition"><i class="'+(isLiked?'fa-solid':'fa-regular')+' fa-thumbs-up mr-1"></i>'+lc+'</button></article><section class="mt-5"><h3 class="font-bold mb-3">?? '+comments.length+'</h3><div class="space-y-3">'+(comments.length?comments.map(renderComment).join(''):emptyState('???????????','fa-comment-dots'))+'</div></section><form id="commentForm" onsubmit="submitComment(event,\''+post.id+'\')" class="fixed bottom-14 left-1/2 -translate-x-1/2 z-20 w-full max-w-md bg-white border-t border-slate-100 p-3 flex gap-2"><input id="commentInput" class="flex-1 h-10 rounded-full bg-slate-100 px-4 outline-none focus:ring-2 focus:ring-blue-100 focus:bg-white" maxlength="200" placeholder="??????" /><button class="w-12 h-10 rounded-full bg-campus text-white pressable transition hover:bg-blue-700 active:bg-blue-800"><i class="fa-solid fa-paper-plane"></i></button></form>';
+      return '<article class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm"><div class="flex items-center gap-3">'+avatarHTML(nm,av)+'<div class="min-w-0 flex-1"><p class="font-semibold text-sm truncate">'+escapeHTML(nm)+'</p><p class="text-xs text-slate-400">'+formatTime(ts)+' · '+escapeHTML(post.category)+'</p></div></div><h2 class="mt-4 text-xl font-bold leading-snug text-slate-950">'+escapeHTML(post.title)+'</h2><p class="mt-3 text-[15px] leading-7 whitespace-pre-wrap text-slate-700">'+escapeHTML(post.content)+'</p><button onclick="toggleLike(\''+post.id+'\')" class="mt-5 h-10 px-4 rounded-full '+(isLiked?'bg-blue-50 text-campus':'bg-slate-100 text-slate-500')+' pressable transition"><i class="'+(isLiked?'fa-solid':'fa-regular')+' fa-thumbs-up mr-1"></i>'+lc+'</button></article><section class="mt-5"><h3 class="font-bold mb-3">评论 '+comments.length+'</h3><div class="space-y-3">'+(comments.length?comments.map(renderComment).join(''):emptyState('还没有评论，来说两句吧','fa-comment-dots'))+'</div></section><form id="commentForm" onsubmit="submitComment(event,\''+post.id+'\')" class="fixed bottom-14 left-1/2 -translate-x-1/2 z-20 w-full max-w-md bg-white border-t border-slate-100 p-3 flex gap-2"><input id="commentInput" class="flex-1 h-10 rounded-full bg-slate-100 px-4 outline-none focus:ring-2 focus:ring-blue-100 focus:bg-white" maxlength="200" placeholder="写下你的评论" /><button class="w-12 h-10 rounded-full bg-campus text-white pressable transition hover:bg-blue-700 active:bg-blue-800"><i class="fa-solid fa-paper-plane"></i></button></form>';
     }
     function renderComment(c) {
       var ts=c.created_at||c.createdAt; var nm=c.user_name||c.userName;
@@ -433,18 +433,18 @@
       var u=getUser();
       var posts=getPosts().filter(function(p){ return (p.user_id||p.userId)===u.id; }).sort(function(a,b){ return (typeof b.created_at==='string'?new Date(b.created_at).getTime():b.createdAt||b.created_at) - (typeof a.created_at==='string'?new Date(a.created_at).getTime():a.createdAt||a.created_at); });
       var comments=(cachedComments||[]).filter(function(c){ return (c.user_id||c.userId)===u.id; });
-      return '<section class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm"><div class="flex items-center gap-4">'+avatarHTML(u.name,u.avatar,'w-16 h-16')+'<div class="min-w-0 flex-1"><h2 class="text-xl font-bold truncate">'+escapeHTML(u.name)+'</h2><p class="mt-1 text-xs text-slate-400">??? '+formatTime(u.createdAt)+'</p></div><button onclick="openProfileModal()" class="w-10 h-10 rounded-full bg-blue-50 text-campus pressable transition hover:bg-blue-100"><i class="fa-solid fa-pen"></i></button></div><div class="mt-5 grid grid-cols-2 gap-3"><div class="rounded-2xl bg-slate-50 p-3 text-center"><p class="text-2xl font-bold text-campus">'+posts.length+'</p><p class="text-xs text-slate-400">???</p></div><div class="rounded-2xl bg-slate-50 p-3 text-center"><p class="text-2xl font-bold text-campusGreen">'+comments.length+'</p><p class="text-xs text-slate-400">???</p></div></div></section><section class="mt-5"><h3 class="font-bold mb-3">????</h3><div class="space-y-3">'+(posts.length?posts.map(renderMyPost).join(''):emptyState('?????????','fa-pen-to-square'))+'</div></section><section class="mt-5"><h3 class="font-bold mb-3">????</h3><div class="space-y-3">'+(comments.length?comments.map(renderMyComment).join(''):emptyState('?????????','fa-comment'))+'</div></section>';
+      return '<section class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm"><div class="flex items-center gap-4">'+avatarHTML(u.name,u.avatar,'w-16 h-16')+'<div class="min-w-0 flex-1"><h2 class="text-xl font-bold truncate">'+escapeHTML(u.name)+'</h2><p class="mt-1 text-xs text-slate-400">注册于 '+formatTime(u.createdAt)+'</p></div><button onclick="openProfileModal()" class="w-10 h-10 rounded-full bg-blue-50 text-campus pressable transition hover:bg-blue-100"><i class="fa-solid fa-pen"></i></button></div><div class="mt-5 grid grid-cols-2 gap-3"><div class="rounded-2xl bg-slate-50 p-3 text-center"><p class="text-2xl font-bold text-campus">'+posts.length+'</p><p class="text-xs text-slate-400">发帖数</p></div><div class="rounded-2xl bg-slate-50 p-3 text-center"><p class="text-2xl font-bold text-campusGreen">'+comments.length+'</p><p class="text-xs text-slate-400">评论数</p></div></div></section><section class="mt-5"><h3 class="font-bold mb-3">我的帖子</h3><div class="space-y-3">'+(posts.length?posts.map(renderMyPost).join(''):emptyState('你还没有发布过帖子','fa-pen-to-square'))+'</div></section><section class="mt-5"><h3 class="font-bold mb-3">我的评论</h3><div class="space-y-3">'+(comments.length?comments.map(renderMyComment).join(''):emptyState('你还没有发表过评论','fa-comment'))+'</div></section>';
     }
     function renderMyPost(post) {
       var ct=post.content||''; var ts=post.created_at||post.createdAt;
-      return '<article class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm"><div onclick="openPost(\''+post.id+'\')" class="pressable transition"><p class="text-xs text-slate-400">'+escapeHTML(post.category)+' ? '+formatTime(ts)+'</p><h4 class="mt-1 font-bold">'+escapeHTML(post.title)+'</h4><p class="mt-2 text-sm text-slate-500 line-clamp-2">'+escapeHTML(ct)+'</p></div><button onclick="deletePost(\''+post.id+'\')" class="mt-3 h-9 px-3 rounded-full bg-red-50 text-red-500 text-sm pressable transition hover:bg-red-100"><i class="fa-solid fa-trash-can mr-1"></i>??</button></article>';
+      return '<article class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm"><div onclick="openPost(\''+post.id+'\')" class="pressable transition"><p class="text-xs text-slate-400">'+escapeHTML(post.category)+' · '+formatTime(ts)+'</p><h4 class="mt-1 font-bold">'+escapeHTML(post.title)+'</h4><p class="mt-2 text-sm text-slate-500 line-clamp-2">'+escapeHTML(ct)+'</p></div><button onclick="deletePost(\''+post.id+'\')" class="mt-3 h-9 px-3 rounded-full bg-red-50 text-red-500 text-sm pressable transition hover:bg-red-100"><i class="fa-solid fa-trash-can mr-1"></i>删除</button></article>';
     }
     function renderMyComment(c) {
       var post=getPosts().find(function(p){ return p.id===(c.post_id||c.postId); });
       var ts=c.created_at||c.createdAt;
-      return '<article class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm"><p class="text-xs text-slate-400">'+formatTime(ts)+' ? ???'+escapeHTML(post?post.title:'?????')+'?</p><p class="mt-2 text-sm leading-6 text-slate-700">'+escapeHTML(c.content)+'</p></article>';
+      return '<article class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm"><p class="text-xs text-slate-400">'+formatTime(ts)+' · 来自《'+escapeHTML(post?post.title:'帖子已删除')+'》</p><p class="mt-2 text-sm leading-6 text-slate-700">'+escapeHTML(c.content)+'</p></article>';
     }
-    window.deletePost=function(pid){ if(!confirm('?????????????????????')) return; showLoading(); deletePost(pid).then(function(){ hideLoading(); render(); }).catch(function(e){ hideLoading(); console.error('delete fail:',e); }); };
+    window.deletePost=function(pid){ if(!confirm('确定删除这条帖子吗？相关评论也会一起删除。')) return; showLoading(); deletePost(pid).then(function(){ hideLoading(); render(); }).catch(function(e){ hideLoading(); console.error('delete fail:',e); }); };
     function openPostModal() { document.getElementById('postForm').reset(); document.getElementById('postError').classList.add('hidden'); document.getElementById('postModal').classList.remove('hidden'); }
     function closePostModal() { document.getElementById('postModal').classList.add('hidden'); }
     window.openProfileModal=function(){ var u=getUser(); document.getElementById('profileName').value=u.name; document.getElementById('profileAvatar').value=u.avatar||''; document.getElementById('profileError').classList.add('hidden'); document.getElementById('profileModal').classList.remove('hidden'); };
@@ -452,8 +452,8 @@
     function initForms() {
       var sel=document.getElementById('postCategory');
       sel.innerHTML=categories.map(function(cat){ return '<option value="'+cat.name+'">'+cat.name+'</option>'; }).join('');
-      document.getElementById('postForm').addEventListener('submit',function(ev){ ev.preventDefault(); var t=document.getElementById('postTitle').value.trim(); var cat=sel.value; var ct=document.getElementById('postContent').value.trim(); var er=document.getElementById('postError'); if(!t||!ct){ er.textContent='?????????'; er.classList.remove('hidden'); return; } showLoading(); var u=getUser(); var po={ id: isCloudEnabled?undefined:'post_'+Date.now()+'_'+Math.random().toString(16).slice(2), userId:u.id, user_id:u.id, userName:u.name, user_name:u.name, userAvatar:u.avatar||'', user_avatar:u.avatar||'', title:t, category:cat, content:ct, createdAt:Date.now(), created_at:new Date().toISOString(), likes:0, likes_count:0 }; createPost(po).then(function(){ hideLoading(); closePostModal(); state.history=[]; navigate('all',{},false); }).catch(function(e){ hideLoading(); er.textContent='?????'+(e.message||'?????'); er.classList.remove('hidden'); }); });
-      document.getElementById('profileForm').addEventListener('submit',function(ev){ ev.preventDefault(); var nm=document.getElementById('profileName').value.trim(); var av=document.getElementById('profileAvatar').value.trim(); var er=document.getElementById('profileError'); if(!nm){ er.textContent='??????'; er.classList.remove('hidden'); return; } showLoading(); var old=getUser(); var nu={ id:old.id, name:nm, avatar:av, createdAt:old.createdAt }; writeLocal(STORAGE_KEYS.user,nu); if(isCloudEnabled){ syncUser(nu).then(function(){ hideLoading(); closeProfileModal(); render(); }); } else { var ps=readLocal(STORAGE_KEYS.posts,[]).map(function(p){ if(p.userId===nu.id||p.user_id===nu.id) return Object.assign({},p,{userName:nm,userAvatar:av,user_name:nm,user_avatar:av}); return p; }); var cs=readLocal(STORAGE_KEYS.comments,[]).map(function(c){ if(c.userId===nu.id||c.user_id===nu.id) return Object.assign({},c,{userName:nm,user_name:nm}); return c; }); writeLocal(STORAGE_KEYS.posts,ps); writeLocal(STORAGE_KEYS.comments,cs); cachedPosts=ps; cachedComments=cs; hideLoading(); closeProfileModal(); render(); } });
+      document.getElementById('postForm').addEventListener('submit',function(ev){ ev.preventDefault(); var t=document.getElementById('postTitle').value.trim(); var cat=sel.value; var ct=document.getElementById('postContent').value.trim(); var er=document.getElementById('postError'); if(!t||!ct){ er.textContent='标题和正文不能为空'; er.classList.remove('hidden'); return; } showLoading(); var u=getUser(); var po={ id: isCloudEnabled?undefined:'post_'+Date.now()+'_'+Math.random().toString(16).slice(2), userId:u.id, user_id:u.id, userName:u.name, user_name:u.name, userAvatar:u.avatar||'', user_avatar:u.avatar||'', title:t, category:cat, content:ct, createdAt:Date.now(), created_at:new Date().toISOString(), likes:0, likes_count:0 }; createPost(po).then(function(){ hideLoading(); closePostModal(); state.history=[]; navigate('all',{},false); }).catch(function(e){ hideLoading(); er.textContent='发布失败：'+(e.message||'请稍后重试'); er.classList.remove('hidden'); }); });
+      document.getElementById('profileForm').addEventListener('submit',function(ev){ ev.preventDefault(); var nm=document.getElementById('profileName').value.trim(); var av=document.getElementById('profileAvatar').value.trim(); var er=document.getElementById('profileError'); if(!nm){ er.textContent='昵称不能为空'; er.classList.remove('hidden'); return; } showLoading(); var old=getUser(); var nu={ id:old.id, name:nm, avatar:av, createdAt:old.createdAt }; writeLocal(STORAGE_KEYS.user,nu); if(isCloudEnabled){ syncUser(nu).then(function(){ hideLoading(); closeProfileModal(); render(); }); } else { var ps=readLocal(STORAGE_KEYS.posts,[]).map(function(p){ if(p.userId===nu.id||p.user_id===nu.id) return Object.assign({},p,{userName:nm,userAvatar:av,user_name:nm,user_avatar:av}); return p; }); var cs=readLocal(STORAGE_KEYS.comments,[]).map(function(c){ if(c.userId===nu.id||c.user_id===nu.id) return Object.assign({},c,{userName:nm,user_name:nm}); return c; }); writeLocal(STORAGE_KEYS.posts,ps); writeLocal(STORAGE_KEYS.comments,cs); cachedPosts=ps; cachedComments=cs; hideLoading(); closeProfileModal(); render(); } });
     }
     document.getElementById('publishBtn').addEventListener('click',openPostModal);
     document.getElementById('closePostModal').addEventListener('click',closePostModal);
@@ -468,4 +468,3 @@
   </script>
 </body>
 </html>
-
