@@ -186,7 +186,7 @@
       var H={"apikey":KEY,"Authorization":"Bearer "+KEY,"Content-Type":"application/json"};
       function api(m,path,body){
         var o={method:m,headers:H};
-        if(body){o.body=JSON.stringify(body);o.headers["Prefer"]="return=representation"}
+        if(body){o.body=JSON.stringify(body)}
         return fetch(URL+path,o).then(function(r){return r.json().then(function(d){if(!r.ok)throw d;return d})})
       }
       function bld(table){
