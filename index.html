@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>?????????</title>
+  <title>xicaiwall</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
   <script>
@@ -171,7 +171,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/umd/supabase.min.js"></script>
   <script>
     // ????????????????????????????????????????????????????????????
-    // ?  ????????? ? ??                              ?
+    // ?  xicaiwall ? ??                              ?
     // ?  ???Supabase??????? localStorage??????    ?
     // ????????????????????????????????????????????????????????????
     const SUPABASE_URL = 'https://pupvnkqfljlkubohczbm.supabase.co';
@@ -354,7 +354,7 @@
     function commentsForPost(pid) { return getComments().filter(function(c){ return (c.post_id||c.postId)===pid; }); }
     function likedByMe(pid) { var u=getUser(); return getLikes().some(function(l){ return (l.post_id||l.postId)===pid && (l.user_id||l.userId)===u.id; }); }
     function emptyState(txt, ic) { ic=ic||'fa-message'; return '<div class="py-16 text-center text-slate-400"><div class="mx-auto mb-4 w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center"><i class="fa-solid '+ic+' text-2xl"></i></div><p class="text-sm">'+txt+'</p></div>'; }
-    function navigate(page, opts, push) { opts=opts||{}; push=push===undefined?true:push; if(push&&state.page!==page) state.history.push({page:state.page,selectedPostId:state.selectedPostId,selectedCategory:state.selectedCategory,title:state.title}); state.page=page; state.selectedPostId=opts.postId||null; state.selectedCategory=opts.category||null; var t={all:'??',categories:'??',me:'??',detail:'????',categoryPosts:opts.category||'????'}; state.title=t[page]||'????'; startPage(); }
+    function navigate(page, opts, push) { opts=opts||{}; push=push===undefined?true:push; if(push&&state.page!==page) state.history.push({page:state.page,selectedPostId:state.selectedPostId,selectedCategory:state.selectedCategory,title:state.title}); state.page=page; state.selectedPostId=opts.postId||null; state.selectedCategory=opts.category||null; var t={all:'??',categories:'??',me:'??',detail:'????',categoryPosts:opts.category||'????'}; state.title=t[page]||'xicaiwall'; startPage(); }
     function goBack() { var prev=state.history.pop(); if(!prev){ navigate('all',{},false); return; } state.page=prev.page; state.selectedPostId=prev.selectedPostId; state.selectedCategory=prev.selectedCategory; state.title=prev.title; startPage(); }
     async function startPage() { showLoading(); try { if(state.page==='all'){ await loadPosts(); await loadLikes(); } if(state.page==='categoryPosts'){ await loadPosts(); await loadLikes(); } if(state.page==='detail'){ await loadPosts(); await loadCommentsForPost(state.selectedPostId); await loadLikes(); } if(state.page==='categories'){ await loadPosts(); } if(state.page==='me'){ await loadPosts(); await loadLikes(); loadCommentsForMe(); } } finally { hideLoading(); render(); } }
     function loadCommentsForMe() { if(!isCloudEnabled){ cachedComments=readLocal(STORAGE_KEYS.comments,[]); return; } supabase.from('comments').select('*').eq('user_id',getUser().id).order('created_at',{ascending:false}).then(function(r){ cachedComments=r.data||[]; render(); }); }
