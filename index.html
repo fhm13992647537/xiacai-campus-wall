@@ -168,9 +168,7 @@
       <div class="loader"></div>
     </div>
   </div>
-  <script>window._supabaseReady=false;</script>
-<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.min.js" onload="window._supabaseReady=true"></script>
-<script>
+  <script>
   setTimeout(function(){
     if(!window._supabaseReady && typeof window.supabase==='undefined'){
       var s=document.createElement('script');
@@ -180,7 +178,45 @@
     }
   },3000);
 </script>
-  <script>
+    <script>
+    // Built-in fetch-based Supabase client - zero CDN dependency
+    (function(){
+      var URL="https://pupvnkqfljlkubohczbm.supabase.co";
+      var KEY="sb_publishable_RlCTDg_FOPBpvfw9bfkB9Q_WIY9X6tl";
+      var H={"apikey":KEY,"Authorization":"Bearer "+KEY,"Content-Type":"application/json"};
+      function api(m,path,body){
+        var o={method:m,headers:H};
+        if(body){o.body=JSON.stringify(body);o.headers["Prefer"]="return=representation"}
+        return fetch(URL+path,o).then(function(r){return r.json().then(function(d){if(!r.ok)throw d;return d})})
+      }
+      function bld(table){
+        var sel=[],ord="",eqs=[];
+        return {
+          select:function(cols,opts){
+            sel.push("select="+(cols||"*"));
+            if(opts&&opts.head)sel.push("limit=0");
+            var o={};
+            o.order=function(c,op){ord="&order="+c+(op&&op.ascending===false?".desc":".asc");return o};
+            o.eq=function(c,v){eqs.push("&"+c+"=eq."+encodeURIComponent(v));return o};
+            o.single=function(){o._single=true;return o};
+            o.limit=function(n){sel.push("limit="+n);return o};
+            o.then=function(res,rej){
+              var q="/rest/v1/"+table+"?"+sel.join("&")+eqs.join("")+ord;
+              return api("GET",q).then(function(d){res(o._single&&Array.isArray(d)?d[0]:d)},rej)
+            };
+            return o
+          },
+          insert:function(data){return{then:function(res,rej){return api("POST","/rest/v1/"+table,data).then(res,rej)}}},
+          update:function(data){var u={eq:function(c,v){u._eq=c+"=eq."+encodeURIComponent(v);return u},then:function(res,rej){return api("PATCH","/rest/v1/"+table+"?"+u._eq,data).then(res,rej)}};return u},
+          delete:function(){var u={eq:function(c,v){u._eq=c+"=eq."+encodeURIComponent(v);return u},then:function(res,rej){return api("DELETE","/rest/v1/"+table+"?"+u._eq).then(res,rej)}};return u},
+          upsert:function(data){return{then:function(res,rej){return api("POST","/rest/v1/"+table+"?on_conflict=id",data).catch(function(){return api("PATCH","/rest/v1/"+table+"?id=eq."+encodeURIComponent(data.id),data)}).then(res,rej)}}}
+        }
+      }
+      window.supabase={from:bld,channel:function(){return{on:function(){return this},subscribe:function(){}}}};
+    })();
+  </script>
+
+<script>
     // ╔══════════════════════════════════════════════════════════╗
     // ║  xicaiwall · 前端                              ║
     // ║  双模：Supabase（云端实时）↔ localStorage（离线降级）    ║
@@ -212,21 +248,14 @@
 
     function initSupabase() {
       if (SUPABASE_URL && SUPABASE_ANON_KEY) {
-        if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
-          try {
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            isCloudEnabled = true;
-            setConnStatus('online');
-            return;
-          } catch (e) { console.warn('Supabase init fail:', e); }
-        }
-        console.warn('Supabase SDK not loaded yet, retrying...');
-        setTimeout(initSupabase, 1000);
+        isCloudEnabled = true;
+        setConnStatus('online');
         return;
       }
       setConnStatus('offline');
     }
-    function setConnStatus(s) {
+    
+function setConnStatus(s) {
       connStatus = s;
       var d = document.getElementById('connDot');
       var b = document.getElementById('connBar');
