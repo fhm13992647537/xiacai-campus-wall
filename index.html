@@ -179,6 +179,7 @@
   },3000);
 </script>
     <script>
+      <script>
     // Built-in fetch-based Supabase client - zero CDN dependency
     (function(){
       var URL="https://pupvnkqfljlkubohczbm.supabase.co";
@@ -187,7 +188,12 @@
       function api(m,path,body){
         var o={method:m,headers:H};
         if(body){o.body=JSON.stringify(body)}
-        return fetch(URL+path,o).then(function(r){return r.text().then(function(t){if(!t)return[];try{var d=JSON.parse(t);if(!r.ok)throw d;return d}catch(e){return[]}})})
+        return fetch(URL+path,o).then(function(r){
+          return r.text().then(function(t){
+            if(!t)return[];
+            try{var d=JSON.parse(t);if(!r.ok)throw d;return d}catch(e){return[]}
+          })
+        })
       }
       function bld(table){
         var sel=[],ord="",eqs=[];
@@ -202,19 +208,24 @@
             o.limit=function(n){sel.push("limit="+n);return o};
             o.then=function(res,rej){
               var q="/rest/v1/"+table+"?"+sel.join("&")+eqs.join("")+ord;
-              return api("GET",q).then(function(d){res(o._single&&Array.isArray(d)?d[0]:d)},rej)
+              return api("GET",q).then(
+                function(d){res({data:o._single&&Array.isArray(d)?(d[0]||null):d,error:null})},
+                function(e){res({data:null,error:e})}
+              )
             };
             return o
           },
-          insert:function(data){return{then:function(res,rej){return api("POST","/rest/v1/"+table,data).then(res,rej)}}},
-          update:function(data){var u={eq:function(c,v){u._eq=c+"=eq."+encodeURIComponent(v);return u},then:function(res,rej){return api("PATCH","/rest/v1/"+table+"?"+u._eq,data).then(res,rej)}};return u},
-          delete:function(){var u={eq:function(c,v){u._eq=c+"=eq."+encodeURIComponent(v);return u},then:function(res,rej){return api("DELETE","/rest/v1/"+table+"?"+u._eq).then(res,rej)}};return u},
-          upsert:function(data){return{then:function(res,rej){return api("POST","/rest/v1/"+table+"?on_conflict=id",data).catch(function(){return api("PATCH","/rest/v1/"+table+"?id=eq."+encodeURIComponent(data.id),data)}).then(res,rej)}}}
+          insert:function(data){return{then:function(res,rej){return api("POST","/rest/v1/"+table,data).then(function(d){res({data:d,error:null})},function(e){res({data:null,error:e})})}}},
+          update:function(data){var u={_eq:""};u.eq=function(c,v){u._eq=c+"=eq."+encodeURIComponent(v);return u};u.then=function(res,rej){return api("PATCH","/rest/v1/"+table+"?"+u._eq,data).then(function(d){res({data:d,error:null})},function(e){res({data:null,error:e})})};return u},
+          delete:function(){var u={_eq:""};u.eq=function(c,v){u._eq=c+"=eq."+encodeURIComponent(v);return u};u.then=function(res,rej){return api("DELETE","/rest/v1/"+table+"?"+u._eq).then(function(d){res({data:d,error:null})},function(e){res({data:null,error:e})})};return u},
+          upsert:function(data){return{then:function(res,rej){return api("POST","/rest/v1/"+table+"?on_conflict=id",data).then(function(d){res({data:d,error:null})},function(){return api("PATCH","/rest/v1/"+table+"?id=eq."+encodeURIComponent(data.id),data).then(function(d2){res({data:d2,error:null})},function(e){res({data:null,error:e})})})}}}
         }
       }
       window.supabase=supabase={from:bld,channel:function(){return{on:function(){return this},subscribe:function(){}}}};
     })();
   </script>
+
+</script>
 
 <script>
     // ╔══════════════════════════════════════════════════════════╗
