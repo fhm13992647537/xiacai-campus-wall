@@ -1,928 +1,962 @@
-```html
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>xicaiwall</title>
-
-  <!-- Tailwind CSS v3 CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Font Awesome CDN -->
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-  />
-
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            campus: "#165DFF",
-            campusGreen: "#22C55E",
-            campusOrange: "#F97316"
-          }
-        }
-      }
-    };
-  </script>
-
-  <style>
-    * {
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    body {
-      background: #f6f8fb;
-    }
-
-    .page {
-      animation: fadeSlide 0.22s ease both;
-    }
-
-    @keyframes fadeSlide {
-      from {
-        opacity: 0;
-        transform: translateY(8px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .pressable:active {
-      transform: scale(0.97);
-    }
-
-    .line-clamp-2 {
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    .safe-bottom {
-      padding-bottom: calc(72px + env(safe-area-inset-bottom));
-    }
-
-    .modal-mask {
-      animation: fadeIn 0.18s ease both;
-    }
-
-    .modal-panel {
-      animation: riseUp 0.22s ease both;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    @keyframes riseUp {
-      from {
-        opacity: 0;
-        transform: translateY(24px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .loader {
-      width: 28px;
-      height: 28px;
-      border: 3px solid #dbeafe;
-      border-top-color: #165DFF;
-      border-radius: 999px;
-      animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-  </style>
-</head>
-
-<body class="text-slate-800">
-  <div id="app" class="min-h-screen max-w-md mx-auto bg-slate-50 relative overflow-hidden">
-    <!-- 顶部导航栏 -->
-    <header class="fixed top-0 left-1/2 -translate-x-1/2 z-30 w-full max-w-md h-14 bg-white/95 backdrop-blur border-b border-slate-100 flex items-center justify-between px-4">
-      <button id="backBtn" class="hidden w-9 h-9 rounded-full hover:bg-slate-100 active:bg-slate-200 pressable transition">
-        <i class="fa-solid fa-chevron-left text-slate-700"></i>
-      </button>
-
-      <h1 id="pageTitle" class="text-lg font-bold text-slate-900 flex-1 truncate">全部</h1>
-
-      <button id="publishBtn" class="w-9 h-9 rounded-full bg-campus text-white shadow-md shadow-blue-200 hover:bg-blue-700 active:bg-blue-800 pressable transition">
-        <i class="fa-solid fa-plus"></i>
-      </button>
-    </header>
-
-    <!-- 页面主体 -->
-    <main id="view" class="pt-16 px-4 safe-bottom"></main>
-
-    <!-- 底部固定导航栏 -->
-    <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 z-30 w-full max-w-md h-14 bg-white border-t border-slate-100 grid grid-cols-3 shadow-[0_-8px_20px_rgba(15,23,42,0.04)]">
-      <button data-tab="all" class="tabBtn flex flex-col items-center justify-center gap-0.5 text-xs pressable transition">
-        <i class="fa-solid fa-home text-lg"></i>
-        <span>全部</span>
-      </button>
-      <button data-tab="categories" class="tabBtn flex flex-col items-center justify-center gap-0.5 text-xs pressable transition">
-        <i class="fa-solid fa-th-large text-lg"></i>
-        <span>分类</span>
-      </button>
-      <button data-tab="me" class="tabBtn flex flex-col items-center justify-center gap-0.5 text-xs pressable transition">
-        <i class="fa-solid fa-user text-lg"></i>
-        <span>我的</span>
-      </button>
-    </nav>
-
-    <!-- 发布帖子弹窗 -->
-    <div id="postModal" class="hidden fixed inset-0 z-40 max-w-md mx-auto">
-      <div class="modal-mask absolute inset-0 bg-slate-900/35"></div>
-      <section class="modal-panel absolute left-0 right-0 bottom-0 bg-white rounded-t-2xl p-4 max-h-[88vh] overflow-y-auto">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-bold">发布帖子</h2>
-          <button id="closePostModal" class="w-9 h-9 rounded-full hover:bg-slate-100 active:bg-slate-200 pressable transition">
-            <i class="fa-solid fa-xmark text-lg"></i>
-          </button>
-        </div>
-
-        <form id="postForm" class="space-y-4">
-          <div>
-            <label class="text-sm font-medium text-slate-700">标题</label>
-            <input id="postTitle" class="mt-2 w-full h-11 rounded-xl border border-slate-200 px-3 outline-none focus:border-campus focus:ring-2 focus:ring-blue-100" maxlength="40" placeholder="写一个清楚的标题" />
-          </div>
-
-          <div>
-            <label class="text-sm font-medium text-slate-700">分类</label>
-            <select id="postCategory" class="mt-2 w-full h-11 rounded-xl border border-slate-200 px-3 bg-white outline-none focus:border-campus focus:ring-2 focus:ring-blue-100"></select>
-          </div>
-
-          <div>
-            <label class="text-sm font-medium text-slate-700">正文</label>
-            <textarea id="postContent" class="mt-2 w-full min-h-36 rounded-xl border border-slate-200 p-3 outline-none resize-none focus:border-campus focus:ring-2 focus:ring-blue-100" maxlength="1000" placeholder="分享校园里的新鲜事吧"></textarea>
-          </div>
-
-          <p id="postError" class="hidden text-sm text-red-500"></p>
-
-          <button class="w-full h-12 rounded-xl bg-campus text-white font-semibold hover:bg-blue-700 active:bg-blue-800 pressable transition">
-            发布
-          </button>
-        </form>
-      </section>
-    </div>
-
-    <!-- 编辑资料弹窗 -->
-    <div id="profileModal" class="hidden fixed inset-0 z-40 max-w-md mx-auto">
-      <div class="modal-mask absolute inset-0 bg-slate-900/35"></div>
-      <section class="modal-panel absolute left-0 right-0 bottom-0 bg-white rounded-t-2xl p-4">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-bold">编辑资料</h2>
-          <button id="closeProfileModal" class="w-9 h-9 rounded-full hover:bg-slate-100 active:bg-slate-200 pressable transition">
-            <i class="fa-solid fa-xmark text-lg"></i>
-          </button>
-        </div>
-
-        <form id="profileForm" class="space-y-4">
-          <div>
-            <label class="text-sm font-medium text-slate-700">昵称</label>
-            <input id="profileName" class="mt-2 w-full h-11 rounded-xl border border-slate-200 px-3 outline-none focus:border-campus focus:ring-2 focus:ring-blue-100" maxlength="16" />
-          </div>
-
-          <div>
-            <label class="text-sm font-medium text-slate-700">头像图片 URL</label>
-            <input id="profileAvatar" class="mt-2 w-full h-11 rounded-xl border border-slate-200 px-3 outline-none focus:border-campus focus:ring-2 focus:ring-blue-100" placeholder="可留空使用默认头像" />
-          </div>
-
-          <p id="profileError" class="hidden text-sm text-red-500"></p>
-
-          <button class="w-full h-12 rounded-xl bg-campus text-white font-semibold hover:bg-blue-700 active:bg-blue-800 pressable transition">
-            保存
-          </button>
-        </form>
-      </section>
-    </div>
-
-    <!-- 加载动画 -->
-    <div id="loading" class="hidden fixed inset-0 z-50 max-w-md mx-auto bg-white/55 backdrop-blur-sm items-center justify-center">
-      <div class="loader"></div>
-    </div>
-  </div>
-
-  <script>
-    // =========================
-    // 基础数据与 localStorage
-    // =========================
-    const STORAGE_KEYS = {
-      user: "campus_forum_user",
-      posts: "campus_forum_posts",
-      comments: "campus_forum_comments",
-      likes: "campus_forum_likes"
-    };
-
-    const categories = [
-      { name: "学习交流", icon: "fa-book-open", color: "bg-blue-50 text-campus" },
-      { name: "失物招领", icon: "fa-magnifying-glass", color: "bg-green-50 text-campusGreen" },
-      { name: "二手交易", icon: "fa-bag-shopping", color: "bg-orange-50 text-campusOrange" },
-      { name: "校园活动", icon: "fa-calendar-days", color: "bg-pink-50 text-pink-500" },
-      { name: "吐槽求助", icon: "fa-comments", color: "bg-purple-50 text-purple-500" },
-      { name: "其他", icon: "fa-seedling", color: "bg-slate-100 text-slate-600" }
-    ];
-
-    let state = {
-      page: "all",
-      title: "全部",
-      selectedPostId: null,
-      selectedCategory: null,
-      history: []
-    };
-
-    function uid(prefix) {
-      return prefix + "_" + Date.now() + "_" + Math.random().toString(16).slice(2);
-    }
-
-    function read(key, fallback) {
-      try {
-        return JSON.parse(localStorage.getItem(key)) || fallback;
-      } catch {
-        return fallback;
-      }
-    }
-
-    function write(key, value) {
-      localStorage.setItem(key, JSON.stringify(value));
-    }
-
-    function getUser() {
-      let user = read(STORAGE_KEYS.user, null);
-      if (!user) {
-        const num = Math.floor(1000 + Math.random() * 9000);
-        user = {
-          id: uid("user"),
-          name: "同学" + num,
-          avatar: "",
-          createdAt: Date.now()
-        };
-        write(STORAGE_KEYS.user, user); if(isCloudOnline)syncUserToCloud(user);
-      }
-      return user;
-    }
-
-    function getPosts() {
-      return read(STORAGE_KEYS.posts, []);
-    }
-
-    function setPosts(posts) {
-      write(STORAGE_KEYS.posts, posts);
-    }
-
-    function getComments() {
-      return read(STORAGE_KEYS.comments, []);
-    }
-
-    function setComments(comments) {
-      write(STORAGE_KEYS.comments, comments);
-    }
-
-    function getLikes() {
-      return read(STORAGE_KEYS.likes, []);
-    }
-
-    function setLikes(likes) {
-      write(STORAGE_KEYS.likes, likes);
-    }
-
-    // 首次打开时放入示例数据，让页面不显得空
-    function seedDemoData() {
-      if (localStorage.getItem(STORAGE_KEYS.posts)) return;
-
-      const user = getUser();
-      const demoPosts = [
-        {
-          id: uid("post"),
-          userId: "demo_1",
-          userName: "南门小助手",
-          userAvatar: "",
-          title: "图书馆三楼靠窗座位真的很适合复习",
-          category: "学习交流",
-          content: "最近期末周快到了，三楼东侧上午光线很好，插座也多。建议大家早点去，顺便带件外套，空调有点足。",
-          createdAt: Date.now() - 1000 * 60 * 38,
-          likes: 12
-        },
-        {
-          id: uid("post"),
-          userId: "demo_2",
-          userName: "橘子汽水",
-          userAvatar: "",
-          title: "捡到一串钥匙，挂着蓝色小熊挂件",
-          category: "失物招领",
-          content: "今天下午在操场入口附近捡到一串钥匙，上面有蓝色小熊挂件。失主可以在评论里描述一下钥匙数量，我放到门卫室了。",
-          createdAt: Date.now() - 1000 * 60 * 60 * 3,
-          likes: 5
-        },
-        {
-          id: uid("post"),
-          userId: user.id,
-          userName: user.name,
-          userAvatar: user.avatar,
-          title: "出一本九成新的高数辅导书",
-          category: "二手交易",
-          content: "书很新，只写了前两章少量笔记。需要的同学可以评论，我晚自习后在食堂门口交易。",
-          createdAt: Date.now() - 1000 * 60 * 60 * 8,
-          likes: 3
-        }
-      ];
-
-      const demoComments = [
-        {
-          id: uid("comment"),
-          postId: demoPosts[0].id,
-          userId: user.id,
-          userName: user.name,
-          content: "感谢推荐，明天去试试。",
-          createdAt: Date.now() - 1000 * 60 * 20
-        }
-      ];
-
-      setPosts(demoPosts);
-      setComments(demoComments);
-      setLikes([]);
-    }
-
-    // =========================
-    // 工具函数
-    // =========================
-    function escapeHTML(str) {
-      return String(str || "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
-
-    function formatTime(ts) {
-      const diff = Date.now() - ts;
-      const minute = 60 * 1000;
-      const hour = 60 * minute;
-      const day = 24 * hour;
-
-      if (diff < minute) return "刚刚";
-      if (diff < hour) return Math.floor(diff / minute) + "分钟前";
-      if (diff < day) return Math.floor(diff / hour) + "小时前";
-      if (diff < day * 7) return Math.floor(diff / day) + "天前";
-
-      const d = new Date(ts);
-      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-    }
-
-    function avatarHTML(name, avatar, size = "w-10 h-10") {
-      if (avatar) {
-        return `<img src="${escapeHTML(avatar)}" onerror="this.outerHTML=defaultAvatar('${escapeHTML(name)}','${size}')" class="${size} rounded-full object-cover bg-slate-100" alt="头像">`;
-      }
-      return defaultAvatar(name, size);
-    }
-
-    function defaultAvatar(name, size) {
-      const text = escapeHTML((name || "同").slice(0, 1));
-      return `<div class="${size} rounded-full bg-gradient-to-br from-campus to-campusGreen text-white flex items-center justify-center font-bold">${text}</div>`;
-    }
-
-    function showLoading() {
-      const el = document.getElementById("loading");
-      el.classList.remove("hidden");
-      el.classList.add("flex");
-    }
-
-    function hideLoading() {
-      const el = document.getElementById("loading");
-      el.classList.add("hidden");
-      el.classList.remove("flex");
-    }
-
-    function simulateWork(callback) {
-      showLoading();
-      setTimeout(() => {
-        callback();
-        hideLoading();
-      }, 260);
-    }
-
-    function emptyState(text, icon = "fa-message") {
-      return `
-        <div class="py-16 text-center text-slate-400">
-          <div class="mx-auto mb-4 w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center">
-            <i class="fa-solid ${icon} text-2xl"></i>
-          </div>
-          <p class="text-sm">${text}</p>
-        </div>
-      `;
-    }
-
-    function commentsForPost(postId) {
-      return getComments().filter(item => item.postId === postId);
-    }
-
-    function likedByMe(postId) {
-      const user = getUser();
-      return getLikes().some(item => item.postId === postId && item.userId === user.id);
-    }
-
-    // =========================
-    // 路由与页面渲染
-    // =========================
-    function navigate(page, options = {}, push = true) {
-      if (push && state.page !== page) {
-        state.history.push({
-          page: state.page,
-          selectedPostId: state.selectedPostId,
-          selectedCategory: state.selectedCategory,
-          title: state.title
-        });
-      }
-
-      state.page = page;
-      state.selectedPostId = options.postId || null;
-      state.selectedCategory = options.category || null;
-
-      const titles = {
-        all: "全部",
-        categories: "分类",
-        me: "我的",
-        detail: "帖子详情",
-        categoryPosts: options.category || "分类帖子"
-      };
-
-      state.title = titles[page] || "xicaiwall";
-      render();
-    }
-
-    function goBack() {
-      const prev = state.history.pop();
-      if (!prev) {
-        navigate("all", {}, false);
-        return;
-      }
-
-      state.page = prev.page;
-      state.selectedPostId = prev.selectedPostId;
-      state.selectedCategory = prev.selectedCategory;
-      state.title = prev.title;
-      render();
-    }
-
-    function render() {
-      document.getElementById("pageTitle").textContent = state.title;
-
-      const backBtn = document.getElementById("backBtn");
-      const publishBtn = document.getElementById("publishBtn");
-
-      if (state.page === "detail" || state.page === "categoryPosts") {
-        backBtn.classList.remove("hidden");
-        document.getElementById("pageTitle").classList.remove("ml-0");
-      } else {
-        backBtn.classList.add("hidden");
-      }
-
-      publishBtn.classList.toggle("hidden", state.page === "me");
-
-      updateTabs();
-
-      const view = document.getElementById("view");
-      view.className = "pt-16 px-4 safe-bottom page";
-
-      if (state.page === "all") view.innerHTML = renderAllPage();
-      if (state.page === "categories") view.innerHTML = renderCategoriesPage();
-      if (state.page === "me") view.innerHTML = renderMePage();
-      if (state.page === "detail") view.innerHTML = renderDetailPage();
-      if (state.page === "categoryPosts") view.innerHTML = renderCategoryPostsPage();
-    }
-
-    function updateTabs() {
-      document.querySelectorAll(".tabBtn").forEach(btn => {
-        const active =
-          (btn.dataset.tab === "all" && state.page === "all") ||
-          (btn.dataset.tab === "categories" && (state.page === "categories" || state.page === "categoryPosts")) ||
-          (btn.dataset.tab === "me" && state.page === "me");
-
-        btn.className = "tabBtn flex flex-col items-center justify-center gap-0.5 text-xs pressable transition " +
-          (active ? "text-campus font-semibold" : "text-slate-400 hover:text-slate-600");
-      });
-    }
-
-    // =========================
-    // 帖子列表
-    // =========================
-    function renderAllPage() {
-      const posts = getPosts().sort((a, b) => b.createdAt - a.createdAt);
-
-      return `
-        <section class="space-y-3">
-          ${posts.length ? posts.map(renderPostCard).join("") : emptyState("还没有帖子，快来发布第一条吧", "fa-pen")}
-        </section>
-      `;
-    }
-
-    function renderCategoryPostsPage() {
-      const posts = getPosts()
-        .filter(post => post.category === state.selectedCategory)
-        .sort((a, b) => b.createdAt - a.createdAt);
-
-      return `
-        <section class="mb-4 rounded-2xl bg-gradient-to-r from-blue-600 to-emerald-500 p-4 text-white">
-          <p class="text-sm opacity-90">当前分类</p>
-          <h2 class="mt-1 text-xl font-bold">${escapeHTML(state.selectedCategory)}</h2>
-        </section>
-
-        <section class="space-y-3">
-          ${posts.length ? posts.map(renderPostCard).join("") : emptyState("这个分类还没有帖子", "fa-folder-open")}
-        </section>
-      `;
-    }
-
-    function renderPostCard(post) {
-      const commentCount = commentsForPost(post.id).length;
-      const excerpt = post.content.length > 72 ? post.content.slice(0, 72) + "..." : post.content;
-
-      return `
-        <article onclick="openPost('${post.id}')" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 pressable transition hover:shadow-md">
-          <div class="flex items-center gap-3">
-            ${avatarHTML(post.userName, post.userAvatar)}
-            <div class="min-w-0 flex-1">
-              <p class="font-semibold text-sm truncate">${escapeHTML(post.userName)}</p>
-              <p class="text-xs text-slate-400">${formatTime(post.createdAt)} · ${escapeHTML(post.category)}</p>
-            </div>
-          </div>
-
-          <h2 class="mt-3 font-bold text-slate-900 leading-snug">${escapeHTML(post.title)}</h2>
-          <p class="mt-2 text-sm text-slate-600 line-clamp-2 leading-6">${escapeHTML(excerpt)}</p>
-
-          <div class="mt-3 flex items-center gap-5 text-sm text-slate-400">
-            <span><i class="fa-regular fa-thumbs-up mr-1"></i>${post.likes || 0}</span>
-            <span><i class="fa-regular fa-comment mr-1"></i>${commentCount}</span>
-          </div>
-        </article>
-      `;
-    }
-
-    window.openPost = function(postId) {
-      navigate("detail", { postId });
-    };
-
-    // =========================
-    // 分类页
-    // =========================
-    function renderCategoriesPage() {
-      return `
-        <section class="grid grid-cols-2 gap-3">
-          ${categories.map(cat => `
-            <button onclick="openCategory('${cat.name}')" class="bg-white rounded-2xl p-4 text-left border border-slate-100 shadow-sm pressable transition hover:shadow-md">
-              <div class="w-11 h-11 rounded-2xl ${cat.color} flex items-center justify-center mb-4">
-                <i class="fa-solid ${cat.icon} text-xl"></i>
-              </div>
-              <h2 class="font-bold">${cat.name}</h2>
-              <p class="mt-1 text-xs text-slate-400">${getPosts().filter(post => post.category === cat.name).length} 条帖子</p>
-            </button>
-          `).join("")}
-        </section>
-      `;
-    }
-
-    window.openCategory = function(category) {
-      navigate("categoryPosts", { category });
-    };
-
-    // =========================
-    // 详情页与评论
-    // =========================
-    function renderDetailPage() {
-      const post = getPosts().find(item => item.id === state.selectedPostId);
-      if (!post) return emptyState("帖子不存在或已被删除", "fa-circle-exclamation");
-
-      const comments = commentsForPost(post.id).sort((a, b) => a.createdAt - b.createdAt);
-      const isLiked = likedByMe(post.id);
-
-      return `
-        <article class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
-          <div class="flex items-center gap-3">
-            ${avatarHTML(post.userName, post.userAvatar)}
-            <div class="min-w-0 flex-1">
-              <p class="font-semibold text-sm truncate">${escapeHTML(post.userName)}</p>
-              <p class="text-xs text-slate-400">${formatTime(post.createdAt)} · ${escapeHTML(post.category)}</p>
-            </div>
-          </div>
-
-          <h2 class="mt-4 text-xl font-bold leading-snug text-slate-950">${escapeHTML(post.title)}</h2>
-          <p class="mt-3 text-[15px] leading-7 whitespace-pre-wrap text-slate-700">${escapeHTML(post.content)}</p>
-
-          <button onclick="toggleLike('${post.id}')" class="mt-5 h-10 px-4 rounded-full ${isLiked ? "bg-blue-50 text-campus" : "bg-slate-100 text-slate-500"} pressable transition">
-            <i class="${isLiked ? "fa-solid" : "fa-regular"} fa-thumbs-up mr-1"></i>
-            ${post.likes || 0}
-          </button>
-        </article>
-
-        <section class="mt-5">
-          <h3 class="font-bold mb-3">评论 ${comments.length}</h3>
-          <div class="space-y-3">
-            ${comments.length ? comments.map(renderComment).join("") : emptyState("还没有评论，来说两句吧", "fa-comment-dots")}
-          </div>
-        </section>
-
-        <form id="commentForm" onsubmit="submitComment(event, '${post.id}')" class="fixed bottom-14 left-1/2 -translate-x-1/2 z-20 w-full max-w-md bg-white border-t border-slate-100 p-3 flex gap-2">
-          <input id="commentInput" class="flex-1 h-10 rounded-full bg-slate-100 px-4 outline-none focus:ring-2 focus:ring-blue-100 focus:bg-white" maxlength="200" placeholder="写下你的评论" />
-          <button class="w-12 h-10 rounded-full bg-campus text-white pressable transition hover:bg-blue-700 active:bg-blue-800">
-            <i class="fa-solid fa-paper-plane"></i>
-          </button>
-        </form>
-      `;
-    }
-
-    function renderComment(comment) {
-      return `
-        <div class="bg-white rounded-2xl p-4 border border-slate-100">
-          <div class="flex items-center justify-between gap-3">
-            <p class="font-semibold text-sm truncate">${escapeHTML(comment.userName)}</p>
-            <p class="text-xs text-slate-400 shrink-0">${formatTime(comment.createdAt)}</p>
-          </div>
-          <p class="mt-2 text-sm leading-6 text-slate-700 whitespace-pre-wrap">${escapeHTML(comment.content)}</p>
-        </div>
-      `;
-    }
-
-    window.toggleLike = function(postId) {
-      const user = getUser();
-      const likes = getLikes();
-      const index = likes.findIndex(item => item.postId === postId && item.userId === user.id);
-      const posts = getPosts();
-
-      const post = posts.find(item => item.id === postId);
-      if (!post) return;
-
-      if (index >= 0) {
-        likes.splice(index, 1);
-        post.likes = Math.max(0, (post.likes || 0) - 1);
-      } else {
-        likes.push({ postId, userId: user.id });
-        post.likes = (post.likes || 0) + 1;
-      }
-
-      setLikes(likes);
-      setPosts(posts);
-      render();
-    };
-
-    window.submitComment = function(event, postId) {
-      event.preventDefault();
-
-      const input = document.getElementById("commentInput");
-      const content = input.value.trim();
-      if (!content) return;
-
-      simulateWork(() => {
-        const user = getUser();
-        const comments = getComments();
-
-        comments.push({
-          id: uid("comment"),
-          postId,
-          userId: user.id,
-          userName: user.name,
-          content,
-          createdAt: Date.now()
-        });
-
-        setComments(comments);
-        render();
-      });
-    };
-
-    // =========================
-    // 个人中心
-    // =========================
-    function renderMePage() {
-      const user = getUser();
-      const posts = getPosts().filter(post => post.userId === user.id).sort((a, b) => b.createdAt - a.createdAt);
-      const comments = getComments().filter(comment => comment.userId === user.id).sort((a, b) => b.createdAt - a.createdAt);
-
-      return `
-        <section class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
-          <div class="flex items-center gap-4">
-            ${avatarHTML(user.name, user.avatar, "w-16 h-16")}
-            <div class="min-w-0 flex-1">
-              <h2 class="text-xl font-bold truncate">${escapeHTML(user.name)}</h2>
-              <p class="mt-1 text-xs text-slate-400">注册于 ${formatTime(user.createdAt)}</p>
-            </div>
-            <button onclick="openProfileModal()" class="w-10 h-10 rounded-full bg-blue-50 text-campus pressable transition hover:bg-blue-100">
-              <i class="fa-solid fa-pen"></i>
-            </button>
-          </div>
-
-          <div class="mt-5 grid grid-cols-2 gap-3">
-            <div class="rounded-2xl bg-slate-50 p-3 text-center">
-              <p class="text-2xl font-bold text-campus">${posts.length}</p>
-              <p class="text-xs text-slate-400">发帖数</p>
-            </div>
-            <div class="rounded-2xl bg-slate-50 p-3 text-center">
-              <p class="text-2xl font-bold text-campusGreen">${comments.length}</p>
-              <p class="text-xs text-slate-400">评论数</p>
-            </div>
-          </div>
-        </section>
-
-        <section class="mt-5">
-          <h3 class="font-bold mb-3">我的帖子</h3>
-          <div class="space-y-3">
-            ${posts.length ? posts.map(renderMyPost).join("") : emptyState("你还没有发布过帖子", "fa-pen-to-square")}
-          </div>
-        </section>
-
-        <section class="mt-5">
-          <h3 class="font-bold mb-3">我的评论</h3>
-          <div class="space-y-3">
-            ${comments.length ? comments.map(renderMyComment).join("") : emptyState("你还没有发表过评论", "fa-comment")}
-          </div>
-        </section>
-      `;
-    }
-
-    function renderMyPost(post) {
-      return `
-        <article class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
-          <div onclick="openPost('${post.id}')" class="pressable transition">
-            <p class="text-xs text-slate-400">${escapeHTML(post.category)} · ${formatTime(post.createdAt)}</p>
-            <h4 class="mt-1 font-bold">${escapeHTML(post.title)}</h4>
-            <p class="mt-2 text-sm text-slate-500 line-clamp-2">${escapeHTML(post.content)}</p>
-          </div>
-
-          <button onclick="deletePost('${post.id}')" class="mt-3 h-9 px-3 rounded-full bg-red-50 text-red-500 text-sm pressable transition hover:bg-red-100">
-            <i class="fa-solid fa-trash-can mr-1"></i>删除
-          </button>
-        </article>
-      `;
-    }
-
-    function renderMyComment(comment) {
-      const post = getPosts().find(item => item.id === comment.postId);
-      return `
-        <article class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
-          <p class="text-xs text-slate-400">${formatTime(comment.createdAt)} · 来自《${escapeHTML(post ? post.title : "帖子已删除")}》</p>
-          <p class="mt-2 text-sm leading-6 text-slate-700">${escapeHTML(comment.content)}</p>
-        </article>
-      `;
-    }
-
-    window.deletePost = function(postId) {
-      if (!confirm("确定删除这条帖子吗？相关评论也会一起删除。")) return;
-
-      simulateWork(() => {
-        setPosts(getPosts().filter(post => post.id !== postId));
-        setComments(getComments().filter(comment => comment.postId !== postId));
-        setLikes(getLikes().filter(like => like.postId !== postId));
-        render();
-      });
-    };
-
-    // =========================
-    // 发布与编辑资料
-    // =========================
-    function openPostModal() {
-      document.getElementById("postForm").reset();
-      document.getElementById("postError").classList.add("hidden");
-      document.getElementById("postModal").classList.remove("hidden");
-    }
-
-    function closePostModal() {
-      document.getElementById("postModal").classList.add("hidden");
-    }
-
-    window.openProfileModal = function() {
-      const user = getUser();
-      document.getElementById("profileName").value = user.name;
-      document.getElementById("profileAvatar").value = user.avatar || "";
-      document.getElementById("profileError").classList.add("hidden");
-      document.getElementById("profileModal").classList.remove("hidden");
-    };
-
-    function closeProfileModal() {
-      document.getElementById("profileModal").classList.add("hidden");
-    }
-
-    function initForms() {
-      const select = document.getElementById("postCategory");
-      select.innerHTML = categories.map(cat => `<option value="${cat.name}">${cat.name}</option>`).join("");
-
-      document.getElementById("postForm").addEventListener("submit", event => {
-        event.preventDefault();
-
-        const title = document.getElementById("postTitle").value.trim();
-        const category = document.getElementById("postCategory").value;
-        const content = document.getElementById("postContent").value.trim();
-        const error = document.getElementById("postError");
-
-        if (!title || !content) {
-          error.textContent = "标题和正文不能为空";
-          error.classList.remove("hidden");
-          return;
-        }
-
-        simulateWork(() => {
-          const user = getUser();
-          const posts = getPosts();
-
-          posts.push({
-            id: uid("post"),
-            userId: user.id,
-            userName: user.name,
-            userAvatar: user.avatar,
-            title,
-            category,
-            content,
-            createdAt: Date.now(),
-            likes: 0
-          });
-
-          setPosts(posts);
-          closePostModal();
-          state.history = [];
-          navigate("all", {}, false);
-        });
-      });
-
-      document.getElementById("profileForm").addEventListener("submit", event => {
-        event.preventDefault();
-
-        const name = document.getElementById("profileName").value.trim();
-        const avatar = document.getElementById("profileAvatar").value.trim();
-        const error = document.getElementById("profileError");
-
-        if (!name) {
-          error.textContent = "昵称不能为空";
-          error.classList.remove("hidden");
-          return;
-        }
-
-        simulateWork(() => {
-          const oldUser = getUser();
-          const nextUser = { ...oldUser, name, avatar };
-
-          write(STORAGE_KEYS.user, nextUser);
-
-          // 同步更新本人历史帖子里的昵称和头像
-          const posts = getPosts().map(post => {
-            if (post.userId === nextUser.id) {
-              return { ...post, userName: name, userAvatar: avatar };
-            }
-            return post;
-          });
-
-          const comments = getComments().map(comment => {
-            if (comment.userId === nextUser.id) {
-              return { ...comment, userName: name };
-            }
-            return comment;
-          });
-
-          setPosts(posts);
-          setComments(comments);
-          closeProfileModal();
-          render();
-        });
-      });
-    }
-
-    // =========================
-    // 事件绑定
-    // =========================
-    document.getElementById("publishBtn").addEventListener("click", openPostModal);
-    document.getElementById("closePostModal").addEventListener("click", closePostModal);
-    document.getElementById("closeProfileModal").addEventListener("click", closeProfileModal);
-    document.getElementById("backBtn").addEventListener("click", goBack);
-
-    document.querySelectorAll(".tabBtn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        state.history = [];
-        navigate(btn.dataset.tab, {}, false);
-      });
-    });
-
-    document.getElementById("postModal").addEventListener("click", event => {
-      if (event.target.classList.contains("modal-mask")) closePostModal();
-    });
-
-    document.getElementById("profileModal").addEventListener("click", event => {
-      if (event.target.classList.contains("modal-mask")) closeProfileModal();
-    });
-
-    // 初始化应用
-    seedDemoData();
-    initForms();
-    render();
-  </script>
-</body>
-</html>
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>xicaiwall</title>
+
+  <!-- Tailwind CSS v3 CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome CDN -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+  />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            campus: "#165DFF",
+            campusGreen: "#22C55E",
+            campusOrange: "#F97316"
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: #f6f8fb;
+    }
+
+    .page {
+      animation: fadeSlide 0.22s ease both;
+    }
+
+    @keyframes fadeSlide {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .pressable:active {
+      transform: scale(0.97);
+    }
+
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .safe-bottom {
+      padding-bottom: calc(72px + env(safe-area-inset-bottom));
+    }
+
+    .modal-mask {
+      animation: fadeIn 0.18s ease both;
+    }
+
+    .modal-panel {
+      animation: riseUp 0.22s ease both;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes riseUp {
+      from {
+        opacity: 0;
+        transform: translateY(24px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .loader {
+      width: 28px;
+      height: 28px;
+      border: 3px solid #dbeafe;
+      border-top-color: #165DFF;
+      border-radius: 999px;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+
+<body class="text-slate-800">
+  <div id="app" class="min-h-screen max-w-md mx-auto bg-slate-50 relative overflow-hidden">
+    <!-- 顶部导航栏 -->
+    <header class="fixed top-0 left-1/2 -translate-x-1/2 z-30 w-full max-w-md h-14 bg-white/95 backdrop-blur border-b border-slate-100 flex items-center justify-between px-4">
+      <button id="backBtn" class="hidden w-9 h-9 rounded-full hover:bg-slate-100 active:bg-slate-200 pressable transition">
+        <i class="fa-solid fa-chevron-left text-slate-700"></i>
+      </button>
+
+      <h1 id="pageTitle" class="text-lg font-bold text-slate-900 flex-1 truncate">全部</h1>
+
+      <button id="publishBtn" class="w-9 h-9 rounded-full bg-campus text-white shadow-md shadow-blue-200 hover:bg-blue-700 active:bg-blue-800 pressable transition">
+        <i class="fa-solid fa-plus"></i>
+      </button>
+    </header>
+
+    <!-- 页面主体 -->
+    <main id="view" class="pt-16 px-4 safe-bottom"></main>
+
+    <!-- 底部固定导航栏 -->
+    <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 z-30 w-full max-w-md h-14 bg-white border-t border-slate-100 grid grid-cols-3 shadow-[0_-8px_20px_rgba(15,23,42,0.04)]">
+      <button data-tab="all" class="tabBtn flex flex-col items-center justify-center gap-0.5 text-xs pressable transition">
+        <i class="fa-solid fa-home text-lg"></i>
+        <span>全部</span>
+      </button>
+      <button data-tab="categories" class="tabBtn flex flex-col items-center justify-center gap-0.5 text-xs pressable transition">
+        <i class="fa-solid fa-th-large text-lg"></i>
+        <span>分类</span>
+      </button>
+      <button data-tab="me" class="tabBtn flex flex-col items-center justify-center gap-0.5 text-xs pressable transition">
+        <i class="fa-solid fa-user text-lg"></i>
+        <span>我的</span>
+      </button>
+    </nav>
+
+    <!-- 发布帖子弹窗 -->
+    <div id="postModal" class="hidden fixed inset-0 z-40 max-w-md mx-auto">
+      <div class="modal-mask absolute inset-0 bg-slate-900/35"></div>
+      <section class="modal-panel absolute left-0 right-0 bottom-0 bg-white rounded-t-2xl p-4 max-h-[88vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-bold">发布帖子</h2>
+          <button id="closePostModal" class="w-9 h-9 rounded-full hover:bg-slate-100 active:bg-slate-200 pressable transition">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
+
+        <form id="postForm" class="space-y-4">
+          <div>
+            <label class="text-sm font-medium text-slate-700">标题</label>
+            <input id="postTitle" class="mt-2 w-full h-11 rounded-xl border border-slate-200 px-3 outline-none focus:border-campus focus:ring-2 focus:ring-blue-100" maxlength="40" placeholder="写一个清楚的标题" />
+          </div>
+
+          <div>
+            <label class="text-sm font-medium text-slate-700">分类</label>
+            <select id="postCategory" class="mt-2 w-full h-11 rounded-xl border border-slate-200 px-3 bg-white outline-none focus:border-campus focus:ring-2 focus:ring-blue-100"></select>
+          </div>
+
+          <div>
+            <label class="text-sm font-medium text-slate-700">正文</label>
+            <textarea id="postContent" class="mt-2 w-full min-h-36 rounded-xl border border-slate-200 p-3 outline-none resize-none focus:border-campus focus:ring-2 focus:ring-blue-100" maxlength="1000" placeholder="分享校园里的新鲜事吧"></textarea>
+          </div>
+
+          <p id="postError" class="hidden text-sm text-red-500"></p>
+
+          <button class="w-full h-12 rounded-xl bg-campus text-white font-semibold hover:bg-blue-700 active:bg-blue-800 pressable transition">
+            发布
+          </button>
+        </form>
+      </section>
+    </div>
+
+    <!-- 编辑资料弹窗 -->
+    <div id="profileModal" class="hidden fixed inset-0 z-40 max-w-md mx-auto">
+      <div class="modal-mask absolute inset-0 bg-slate-900/35"></div>
+      <section class="modal-panel absolute left-0 right-0 bottom-0 bg-white rounded-t-2xl p-4">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-bold">编辑资料</h2>
+          <button id="closeProfileModal" class="w-9 h-9 rounded-full hover:bg-slate-100 active:bg-slate-200 pressable transition">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
+
+        <form id="profileForm" class="space-y-4">
+          <div>
+            <label class="text-sm font-medium text-slate-700">昵称</label>
+            <input id="profileName" class="mt-2 w-full h-11 rounded-xl border border-slate-200 px-3 outline-none focus:border-campus focus:ring-2 focus:ring-blue-100" maxlength="16" />
+          </div>
+
+          <div>
+            <label class="text-sm font-medium text-slate-700">头像图片 URL</label>
+            <input id="profileAvatar" class="mt-2 w-full h-11 rounded-xl border border-slate-200 px-3 outline-none focus:border-campus focus:ring-2 focus:ring-blue-100" placeholder="可留空使用默认头像" />
+          </div>
+
+          <p id="profileError" class="hidden text-sm text-red-500"></p>
+
+          <button class="w-full h-12 rounded-xl bg-campus text-white font-semibold hover:bg-blue-700 active:bg-blue-800 pressable transition">
+            保存
+          </button>
+        </form>
+      </section>
+    </div>
+
+    <!-- 加载动画 -->
+    <div id="loading" class="hidden fixed inset-0 z-50 max-w-md mx-auto bg-white/55 backdrop-blur-sm items-center justify-center">
+      <div class="loader"></div>
+    </div>
+  </div>
+
+  <script>
+        const SUPABASE_URL = 'https://pupvnkqfljlkubohczbm.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_RlCTDg_FOPBpvfw9bfkB9Q_WIY9X6tl';
+    let isCloudOnline = false;
+    (async function checkCloud(){
+      try{
+        var r=await fetch(SUPABASE_URL+'/rest/v1/posts?select=count',{headers:{apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+SUPABASE_ANON_KEY}});
+        if(r.ok){isCloudOnline=true;loadCloudPosts();setInterval(loadCloudPosts,8000)}
+      }catch(e){}
+    })();
+    async function loadCloudPosts(){
+      var r=await fetch(SUPABASE_URL+'/rest/v1/posts?select=*&order=created_at.desc',{headers:{apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+SUPABASE_ANON_KEY}});
+      var posts=await r.json();
+      if(posts.length){setPosts(posts);render()}
+    }
+    async function syncUserToCloud(u){
+      fetch(SUPABASE_URL+'/rest/v1/users',{method:'POST',headers:{apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+SUPABASE_ANON_KEY,'Content-Type':'application/json'},body:JSON.stringify({id:u.id,name:u.name,avatar:u.avatar||''})}).catch(function(){});
+    }
+    async function createPostCloud(p){
+      fetch(SUPABASE_URL+'/rest/v1/posts',{method:'POST',headers:{apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+SUPABASE_ANON_KEY,'Content-Type':'application/json'},body:JSON.stringify({user_id:p.userId,user_name:p.userName,user_avatar:p.userAvatar||'',title:p.title,category:p.category,content:p.content})}).catch(function(){});
+    }
+    async function deletePostCloud(id){
+      fetch(SUPABASE_URL+'/rest/v1/posts?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:{apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+SUPABASE_ANON_KEY}}).catch(function(){});
+    }
+    async function createCommentCloud(c){
+      fetch(SUPABASE_URL+'/rest/v1/comments',{method:'POST',headers:{apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+SUPABASE_ANON_KEY,'Content-Type':'application/json'},body:JSON.stringify({post_id:c.postId,user_id:c.userId,user_name:c.userName,content:c.content})}).catch(function(){});
+    }
+    async function toggleLikeCloud(pid,uid,add){
+      if(add){
+        fetch(SUPABASE_URL+'/rest/v1/likes',{method:'POST',headers:{apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+SUPABASE_ANON_KEY,'Content-Type':'application/json'},body:JSON.stringify({post_id:pid,user_id:uid})}).catch(function(){});
+      }else{
+        fetch(SUPABASE_URL+'/rest/v1/likes?post_id=eq.'+encodeURIComponent(pid)+'&user_id=eq.'+encodeURIComponent(uid),{method:'DELETE',headers:{apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+SUPABASE_ANON_KEY}}).catch(function(){});
+      }
+    }
+
+// =========================
+    // 基础数据与 localStorage
+    // =========================
+    const STORAGE_KEYS = {
+      user: "campus_forum_user",
+      posts: "campus_forum_posts",
+      comments: "campus_forum_comments",
+      likes: "campus_forum_likes"
+    };
+
+    const categories = [
+      { name: "学习交流", icon: "fa-book-open", color: "bg-blue-50 text-campus" },
+      { name: "失物招领", icon: "fa-magnifying-glass", color: "bg-green-50 text-campusGreen" },
+      { name: "二手交易", icon: "fa-bag-shopping", color: "bg-orange-50 text-campusOrange" },
+      { name: "校园活动", icon: "fa-calendar-days", color: "bg-pink-50 text-pink-500" },
+      { name: "吐槽求助", icon: "fa-comments", color: "bg-purple-50 text-purple-500" },
+      { name: "其他", icon: "fa-seedling", color: "bg-slate-100 text-slate-600" }
+    ];
+
+    let state = {
+      page: "all",
+      title: "全部",
+      selectedPostId: null,
+      selectedCategory: null,
+      history: []
+    };
+
+    function uid(prefix) {
+      return prefix + "_" + Date.now() + "_" + Math.random().toString(16).slice(2);
+    }
+
+    function read(key, fallback) {
+      try {
+        return JSON.parse(localStorage.getItem(key)) || fallback;
+      } catch {
+        return fallback;
+      }
+    }
+
+    function write(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function getUser() {
+      let user = read(STORAGE_KEYS.user, null);
+      if (!user) {
+        const num = Math.floor(1000 + Math.random() * 9000);
+        user = {
+          id: uid("user"),
+          name: "同学" + num,
+          avatar: "",
+          createdAt: Date.now()
+        };
+        write(STORAGE_KEYS.user, user); if(isCloudOnline)syncUserToCloud(user);
+      }
+      return user;
+    }
+
+    function getPosts() {
+      return read(STORAGE_KEYS.posts, []);
+    }
+
+    function setPosts(posts) {
+      write(STORAGE_KEYS.posts, posts);
+    }
+
+    function getComments() {
+      return read(STORAGE_KEYS.comments, []);
+    }
+
+    function setComments(comments) {
+      write(STORAGE_KEYS.comments, comments);
+    }
+
+    function getLikes() {
+      return read(STORAGE_KEYS.likes, []);
+    }
+
+    function setLikes(likes) {
+      write(STORAGE_KEYS.likes, likes);
+    }
+
+    // 首次打开时放入示例数据，让页面不显得空
+    function seedDemoData() {
+      if (localStorage.getItem(STORAGE_KEYS.posts)) return;
+
+      const user = getUser();
+      const demoPosts = [
+        {
+          id: uid("post"),
+          userId: "demo_1",
+          userName: "南门小助手",
+          userAvatar: "",
+          title: "图书馆三楼靠窗座位真的很适合复习",
+          category: "学习交流",
+          content: "最近期末周快到了，三楼东侧上午光线很好，插座也多。建议大家早点去，顺便带件外套，空调有点足。",
+          createdAt: Date.now() - 1000 * 60 * 38,
+          likes: 12
+        },
+        {
+          id: uid("post"),
+          userId: "demo_2",
+          userName: "橘子汽水",
+          userAvatar: "",
+          title: "捡到一串钥匙，挂着蓝色小熊挂件",
+          category: "失物招领",
+          content: "今天下午在操场入口附近捡到一串钥匙，上面有蓝色小熊挂件。失主可以在评论里描述一下钥匙数量，我放到门卫室了。",
+          createdAt: Date.now() - 1000 * 60 * 60 * 3,
+          likes: 5
+        },
+        {
+          id: uid("post"),
+          userId: user.id,
+          userName: user.name,
+          userAvatar: user.avatar,
+          title: "出一本九成新的高数辅导书",
+          category: "二手交易",
+          content: "书很新，只写了前两章少量笔记。需要的同学可以评论，我晚自习后在食堂门口交易。",
+          createdAt: Date.now() - 1000 * 60 * 60 * 8,
+          likes: 3
+        }
+      ];
+
+      const demoComments = [
+        {
+          id: uid("comment"),
+          postId: demoPosts[0].id,
+          userId: user.id,
+          userName: user.name,
+          content: "感谢推荐，明天去试试。",
+          createdAt: Date.now() - 1000 * 60 * 20
+        }
+      ];
+
+      setPosts(demoPosts);
+      setComments(demoComments);
+      setLikes([]);
+    }
+
+    // =========================
+    // 工具函数
+    // =========================
+    function escapeHTML(str) {
+      return String(str || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function formatTime(ts) {
+      const diff = Date.now() - ts;
+      const minute = 60 * 1000;
+      const hour = 60 * minute;
+      const day = 24 * hour;
+
+      if (diff < minute) return "刚刚";
+      if (diff < hour) return Math.floor(diff / minute) + "分钟前";
+      if (diff < day) return Math.floor(diff / hour) + "小时前";
+      if (diff < day * 7) return Math.floor(diff / day) + "天前";
+
+      const d = new Date(ts);
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    }
+
+    function avatarHTML(name, avatar, size = "w-10 h-10") {
+      if (avatar) {
+        return `<img src="${escapeHTML(avatar)}" onerror="this.outerHTML=defaultAvatar('${escapeHTML(name)}','${size}')" class="${size} rounded-full object-cover bg-slate-100" alt="头像">`;
+      }
+      return defaultAvatar(name, size);
+    }
+
+    function defaultAvatar(name, size) {
+      const text = escapeHTML((name || "同").slice(0, 1));
+      return `<div class="${size} rounded-full bg-gradient-to-br from-campus to-campusGreen text-white flex items-center justify-center font-bold">${text}</div>`;
+    }
+
+    function showLoading() {
+      const el = document.getElementById("loading");
+      el.classList.remove("hidden");
+      el.classList.add("flex");
+    }
+
+    function hideLoading() {
+      const el = document.getElementById("loading");
+      el.classList.add("hidden");
+      el.classList.remove("flex");
+    }
+
+    function simulateWork(callback) {
+      showLoading();
+      setTimeout(() => {
+        callback();
+        hideLoading();
+      }, 260);
+    }
+
+    function emptyState(text, icon = "fa-message") {
+      return `
+        <div class="py-16 text-center text-slate-400">
+          <div class="mx-auto mb-4 w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center">
+            <i class="fa-solid ${icon} text-2xl"></i>
+          </div>
+          <p class="text-sm">${text}</p>
+        </div>
+      `;
+    }
+
+    function commentsForPost(postId) {
+      return getComments().filter(item => item.postId === postId);
+    }
+
+    function likedByMe(postId) {
+      const user = getUser();
+      return getLikes().some(item => item.postId === postId && item.userId === user.id);
+    }
+
+    // =========================
+    // 路由与页面渲染
+    // =========================
+    function navigate(page, options = {}, push = true) {
+      if (push && state.page !== page) {
+        state.history.push({
+          page: state.page,
+          selectedPostId: state.selectedPostId,
+          selectedCategory: state.selectedCategory,
+          title: state.title
+        });
+      }
+
+      state.page = page;
+      state.selectedPostId = options.postId || null;
+      state.selectedCategory = options.category || null;
+
+      const titles = {
+        all: "全部",
+        categories: "分类",
+        me: "我的",
+        detail: "帖子详情",
+        categoryPosts: options.category || "分类帖子"
+      };
+
+      state.title = titles[page] || "校园论坛";
+      render();
+    }
+
+    function goBack() {
+      const prev = state.history.pop();
+      if (!prev) {
+        navigate("all", {}, false);
+        return;
+      }
+
+      state.page = prev.page;
+      state.selectedPostId = prev.selectedPostId;
+      state.selectedCategory = prev.selectedCategory;
+      state.title = prev.title;
+      render();
+    }
+
+    function render() {
+      document.getElementById("pageTitle").textContent = state.title;
+
+      const backBtn = document.getElementById("backBtn");
+      const publishBtn = document.getElementById("publishBtn");
+
+      if (state.page === "detail" || state.page === "categoryPosts") {
+        backBtn.classList.remove("hidden");
+        document.getElementById("pageTitle").classList.remove("ml-0");
+      } else {
+        backBtn.classList.add("hidden");
+      }
+
+      publishBtn.classList.toggle("hidden", state.page === "me");
+
+      updateTabs();
+
+      const view = document.getElementById("view");
+      view.className = "pt-16 px-4 safe-bottom page";
+
+      if (state.page === "all") view.innerHTML = renderAllPage();
+      if (state.page === "categories") view.innerHTML = renderCategoriesPage();
+      if (state.page === "me") view.innerHTML = renderMePage();
+      if (state.page === "detail") view.innerHTML = renderDetailPage();
+      if (state.page === "categoryPosts") view.innerHTML = renderCategoryPostsPage();
+    }
+
+    function updateTabs() {
+      document.querySelectorAll(".tabBtn").forEach(btn => {
+        const active =
+          (btn.dataset.tab === "all" && state.page === "all") ||
+          (btn.dataset.tab === "categories" && (state.page === "categories" || state.page === "categoryPosts")) ||
+          (btn.dataset.tab === "me" && state.page === "me");
+
+        btn.className = "tabBtn flex flex-col items-center justify-center gap-0.5 text-xs pressable transition " +
+          (active ? "text-campus font-semibold" : "text-slate-400 hover:text-slate-600");
+      });
+    }
+
+    // =========================
+    // 帖子列表
+    // =========================
+    function renderAllPage() {
+      const posts = getPosts().sort((a, b) => b.createdAt - a.createdAt);
+
+      return `
+        <section class="space-y-3">
+          ${posts.length ? posts.map(renderPostCard).join("") : emptyState("还没有帖子，快来发布第一条吧", "fa-pen")}
+        </section>
+      `;
+    }
+
+    function renderCategoryPostsPage() {
+      const posts = getPosts()
+        .filter(post => post.category === state.selectedCategory)
+        .sort((a, b) => b.createdAt - a.createdAt);
+
+      return `
+        <section class="mb-4 rounded-2xl bg-gradient-to-r from-blue-600 to-emerald-500 p-4 text-white">
+          <p class="text-sm opacity-90">当前分类</p>
+          <h2 class="mt-1 text-xl font-bold">${escapeHTML(state.selectedCategory)}</h2>
+        </section>
+
+        <section class="space-y-3">
+          ${posts.length ? posts.map(renderPostCard).join("") : emptyState("这个分类还没有帖子", "fa-folder-open")}
+        </section>
+      `;
+    }
+
+    function renderPostCard(post) {
+      const commentCount = commentsForPost(post.id).length;
+      const excerpt = post.content.length > 72 ? post.content.slice(0, 72) + "..." : post.content;
+
+      return `
+        <article onclick="openPost('${post.id}')" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 pressable transition hover:shadow-md">
+          <div class="flex items-center gap-3">
+            ${avatarHTML(post.userName, post.userAvatar)}
+            <div class="min-w-0 flex-1">
+              <p class="font-semibold text-sm truncate">${escapeHTML(post.userName)}</p>
+              <p class="text-xs text-slate-400">${formatTime(post.createdAt)} · ${escapeHTML(post.category)}</p>
+            </div>
+          </div>
+
+          <h2 class="mt-3 font-bold text-slate-900 leading-snug">${escapeHTML(post.title)}</h2>
+          <p class="mt-2 text-sm text-slate-600 line-clamp-2 leading-6">${escapeHTML(excerpt)}</p>
+
+          <div class="mt-3 flex items-center gap-5 text-sm text-slate-400">
+            <span><i class="fa-regular fa-thumbs-up mr-1"></i>${post.likes || 0}</span>
+            <span><i class="fa-regular fa-comment mr-1"></i>${commentCount}</span>
+          </div>
+        </article>
+      `;
+    }
+
+    window.openPost = function(postId) {
+      navigate("detail", { postId });
+    };
+
+    // =========================
+    // 分类页
+    // =========================
+    function renderCategoriesPage() {
+      return `
+        <section class="grid grid-cols-2 gap-3">
+          ${categories.map(cat => `
+            <button onclick="openCategory('${cat.name}')" class="bg-white rounded-2xl p-4 text-left border border-slate-100 shadow-sm pressable transition hover:shadow-md">
+              <div class="w-11 h-11 rounded-2xl ${cat.color} flex items-center justify-center mb-4">
+                <i class="fa-solid ${cat.icon} text-xl"></i>
+              </div>
+              <h2 class="font-bold">${cat.name}</h2>
+              <p class="mt-1 text-xs text-slate-400">${getPosts().filter(post => post.category === cat.name).length} 条帖子</p>
+            </button>
+          `).join("")}
+        </section>
+      `;
+    }
+
+    window.openCategory = function(category) {
+      navigate("categoryPosts", { category });
+    };
+
+    // =========================
+    // 详情页与评论
+    // =========================
+    function renderDetailPage() {
+      const post = getPosts().find(item => item.id === state.selectedPostId);
+      if (!post) return emptyState("帖子不存在或已被删除", "fa-circle-exclamation");
+
+      const comments = commentsForPost(post.id).sort((a, b) => a.createdAt - b.createdAt);
+      const isLiked = likedByMe(post.id);
+
+      return `
+        <article class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
+          <div class="flex items-center gap-3">
+            ${avatarHTML(post.userName, post.userAvatar)}
+            <div class="min-w-0 flex-1">
+              <p class="font-semibold text-sm truncate">${escapeHTML(post.userName)}</p>
+              <p class="text-xs text-slate-400">${formatTime(post.createdAt)} · ${escapeHTML(post.category)}</p>
+            </div>
+          </div>
+
+          <h2 class="mt-4 text-xl font-bold leading-snug text-slate-950">${escapeHTML(post.title)}</h2>
+          <p class="mt-3 text-[15px] leading-7 whitespace-pre-wrap text-slate-700">${escapeHTML(post.content)}</p>
+
+          <button onclick="toggleLike('${post.id}')" class="mt-5 h-10 px-4 rounded-full ${isLiked ? "bg-blue-50 text-campus" : "bg-slate-100 text-slate-500"} pressable transition">
+            <i class="${isLiked ? "fa-solid" : "fa-regular"} fa-thumbs-up mr-1"></i>
+            ${post.likes || 0}
+          </button>
+        </article>
+
+        <section class="mt-5">
+          <h3 class="font-bold mb-3">评论 ${comments.length}</h3>
+          <div class="space-y-3">
+            ${comments.length ? comments.map(renderComment).join("") : emptyState("还没有评论，来说两句吧", "fa-comment-dots")}
+          </div>
+        </section>
+
+        <form id="commentForm" onsubmit="submitComment(event, '${post.id}')" class="fixed bottom-14 left-1/2 -translate-x-1/2 z-20 w-full max-w-md bg-white border-t border-slate-100 p-3 flex gap-2">
+          <input id="commentInput" class="flex-1 h-10 rounded-full bg-slate-100 px-4 outline-none focus:ring-2 focus:ring-blue-100 focus:bg-white" maxlength="200" placeholder="写下你的评论" />
+          <button class="w-12 h-10 rounded-full bg-campus text-white pressable transition hover:bg-blue-700 active:bg-blue-800">
+            <i class="fa-solid fa-paper-plane"></i>
+          </button>
+        </form>
+      `;
+    }
+
+    function renderComment(comment) {
+      return `
+        <div class="bg-white rounded-2xl p-4 border border-slate-100">
+          <div class="flex items-center justify-between gap-3">
+            <p class="font-semibold text-sm truncate">${escapeHTML(comment.userName)}</p>
+            <p class="text-xs text-slate-400 shrink-0">${formatTime(comment.createdAt)}</p>
+          </div>
+          <p class="mt-2 text-sm leading-6 text-slate-700 whitespace-pre-wrap">${escapeHTML(comment.content)}</p>
+        </div>
+      `;
+    }
+
+    window.toggleLike = function(postId) {
+      const user = getUser();
+      const likes = getLikes();
+      const index = likes.findIndex(item => item.postId === postId && item.userId === user.id);
+      const posts = getPosts();
+
+      const post = posts.find(item => item.id === postId);
+      if (!post) return;
+
+      if (index >= 0) {
+        likes.splice(index, 1);
+        post.likes = Math.max(0, (post.likes || 0) - 1);
+      } else {
+        likes.push({ postId, userId: user.id });
+        post.likes = (post.likes || 0) + 1;
+      }
+
+      setLikes(likes);
+      setPosts(posts);
+      render();
+    };
+
+    window.submitComment = function(event, postId) {
+      event.preventDefault();
+
+      const input = document.getElementById("commentInput");
+      const content = input.value.trim();
+      if (!content) return;
+
+      simulateWork(() => {
+        const user = getUser();
+        const comments = getComments();
+
+        comments.push({
+          id: uid("comment"),
+          postId,
+          userId: user.id,
+          userName: user.name,
+          content,
+          createdAt: Date.now()
+        });
+
+        setComments(comments);
+        render();
+      });
+    };
+
+    // =========================
+    // 个人中心
+    // =========================
+    function renderMePage() {
+      const user = getUser();
+      const posts = getPosts().filter(post => post.userId === user.id).sort((a, b) => b.createdAt - a.createdAt);
+      const comments = getComments().filter(comment => comment.userId === user.id).sort((a, b) => b.createdAt - a.createdAt);
+
+      return `
+        <section class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
+          <div class="flex items-center gap-4">
+            ${avatarHTML(user.name, user.avatar, "w-16 h-16")}
+            <div class="min-w-0 flex-1">
+              <h2 class="text-xl font-bold truncate">${escapeHTML(user.name)}</h2>
+              <p class="mt-1 text-xs text-slate-400">注册于 ${formatTime(user.createdAt)}</p>
+            </div>
+            <button onclick="openProfileModal()" class="w-10 h-10 rounded-full bg-blue-50 text-campus pressable transition hover:bg-blue-100">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+          </div>
+
+          <div class="mt-5 grid grid-cols-2 gap-3">
+            <div class="rounded-2xl bg-slate-50 p-3 text-center">
+              <p class="text-2xl font-bold text-campus">${posts.length}</p>
+              <p class="text-xs text-slate-400">发帖数</p>
+            </div>
+            <div class="rounded-2xl bg-slate-50 p-3 text-center">
+              <p class="text-2xl font-bold text-campusGreen">${comments.length}</p>
+              <p class="text-xs text-slate-400">评论数</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="mt-5">
+          <h3 class="font-bold mb-3">我的帖子</h3>
+          <div class="space-y-3">
+            ${posts.length ? posts.map(renderMyPost).join("") : emptyState("你还没有发布过帖子", "fa-pen-to-square")}
+          </div>
+        </section>
+
+        <section class="mt-5">
+          <h3 class="font-bold mb-3">我的评论</h3>
+          <div class="space-y-3">
+            ${comments.length ? comments.map(renderMyComment).join("") : emptyState("你还没有发表过评论", "fa-comment")}
+          </div>
+        </section>
+      `;
+    }
+
+    function renderMyPost(post) {
+      return `
+        <article class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
+          <div onclick="openPost('${post.id}')" class="pressable transition">
+            <p class="text-xs text-slate-400">${escapeHTML(post.category)} · ${formatTime(post.createdAt)}</p>
+            <h4 class="mt-1 font-bold">${escapeHTML(post.title)}</h4>
+            <p class="mt-2 text-sm text-slate-500 line-clamp-2">${escapeHTML(post.content)}</p>
+          </div>
+
+          <button onclick="deletePost('${post.id}')" class="mt-3 h-9 px-3 rounded-full bg-red-50 text-red-500 text-sm pressable transition hover:bg-red-100">
+            <i class="fa-solid fa-trash-can mr-1"></i>删除
+          </button>
+        </article>
+      `;
+    }
+
+    function renderMyComment(comment) {
+      const post = getPosts().find(item => item.id === comment.postId);
+      return `
+        <article class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
+          <p class="text-xs text-slate-400">${formatTime(comment.createdAt)} · 来自《${escapeHTML(post ? post.title : "帖子已删除")}》</p>
+          <p class="mt-2 text-sm leading-6 text-slate-700">${escapeHTML(comment.content)}</p>
+        </article>
+      `;
+    }
+
+    window.deletePost = function(postId) {
+      if (!confirm("确定删除这条帖子吗？相关评论也会一起删除。")) return;
+
+      simulateWork(() => {
+        setPosts(getPosts().filter(post => post.id !== postId));
+        setComments(getComments().filter(comment => comment.postId !== postId));
+        setLikes(getLikes().filter(like => like.postId !== postId));
+        render();
+      });
+    };
+
+    // =========================
+    // 发布与编辑资料
+    // =========================
+    function openPostModal() {
+      document.getElementById("postForm").reset();
+      document.getElementById("postError").classList.add("hidden");
+      document.getElementById("postModal").classList.remove("hidden");
+    }
+
+    function closePostModal() {
+      document.getElementById("postModal").classList.add("hidden");
+    }
+
+    window.openProfileModal = function() {
+      const user = getUser();
+      document.getElementById("profileName").value = user.name;
+      document.getElementById("profileAvatar").value = user.avatar || "";
+      document.getElementById("profileError").classList.add("hidden");
+      document.getElementById("profileModal").classList.remove("hidden");
+    };
+
+    function closeProfileModal() {
+      document.getElementById("profileModal").classList.add("hidden");
+    }
+
+    function initForms() {
+      const select = document.getElementById("postCategory");
+      select.innerHTML = categories.map(cat => `<option value="${cat.name}">${cat.name}</option>`).join("");
+
+      document.getElementById("postForm").addEventListener("submit", event => {
+        event.preventDefault();
+
+        const title = document.getElementById("postTitle").value.trim();
+        const category = document.getElementById("postCategory").value;
+        const content = document.getElementById("postContent").value.trim();
+        const error = document.getElementById("postError");
+
+        if (!title || !content) {
+          error.textContent = "标题和正文不能为空";
+          error.classList.remove("hidden");
+          return;
+        }
+
+        simulateWork(() => {
+          const user = getUser();
+          const posts = getPosts();
+
+          posts.push({
+            id: uid("post"),
+            userId: user.id,
+            userName: user.name,
+            userAvatar: user.avatar,
+            title,
+            category,
+            content,
+            createdAt: Date.now(),
+            likes: 0
+          });
+
+          setPosts(posts);
+          closePostModal();
+          state.history = [];
+          navigate("all", {}, false);
+        });
+      });
+
+      document.getElementById("profileForm").addEventListener("submit", event => {
+        event.preventDefault();
+
+        const name = document.getElementById("profileName").value.trim();
+        const avatar = document.getElementById("profileAvatar").value.trim();
+        const error = document.getElementById("profileError");
+
+        if (!name) {
+          error.textContent = "昵称不能为空";
+          error.classList.remove("hidden");
+          return;
+        }
+
+        simulateWork(() => {
+          const oldUser = getUser();
+          const nextUser = { ...oldUser, name, avatar };
+
+          write(STORAGE_KEYS.user, nextUser);
+
+          // 同步更新本人历史帖子里的昵称和头像
+          const posts = getPosts().map(post => {
+            if (post.userId === nextUser.id) {
+              return { ...post, userName: name, userAvatar: avatar };
+            }
+            return post;
+          });
+
+          const comments = getComments().map(comment => {
+            if (comment.userId === nextUser.id) {
+              return { ...comment, userName: name };
+            }
+            return comment;
+          });
+
+          setPosts(posts);
+          setComments(comments);
+          closeProfileModal();
+          render();
+        });
+      });
+    }
+
+    // =========================
+    // 事件绑定
+    // =========================
+    document.getElementById("publishBtn").addEventListener("click", openPostModal);
+    document.getElementById("closePostModal").addEventListener("click", closePostModal);
+    document.getElementById("closeProfileModal").addEventListener("click", closeProfileModal);
+    document.getElementById("backBtn").addEventListener("click", goBack);
+
+    document.querySelectorAll(".tabBtn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        state.history = [];
+        navigate(btn.dataset.tab, {}, false);
+      });
+    });
+
+    document.getElementById("postModal").addEventListener("click", event => {
+      if (event.target.classList.contains("modal-mask")) closePostModal();
+    });
+
+    document.getElementById("profileModal").addEventListener("click", event => {
+      if (event.target.classList.contains("modal-mask")) closeProfileModal();
+    });
+
+    // 初始化应用
+    seedDemoData();
+    initForms();
+    render();
+  </script>
+</body>
+</html>
 ```
