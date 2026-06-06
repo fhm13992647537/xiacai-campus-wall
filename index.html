@@ -204,26 +204,11 @@
         try {
           supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
           isCloudEnabled = true;
-          setConnStatus('loading');
-          testConnection();
+          setConnStatus('online');
           return;
         } catch (e) { console.warn('Supabase init fail:', e); }
       }
       setConnStatus('offline');
-    }
-    async function testConnection() {
-      try {
-        var r = await fetch(SUPABASE_URL + '/rest/v1/posts?select=count', {
-          headers: { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY }
-        });
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        setConnStatus('online');
-      } catch (e) {
-        console.warn('Supabase connect fail, offline fallback:', e.message);
-        setConnStatus('error');
-        isCloudEnabled = false;
-        setTimeout(testConnection, 5000);
-      }
     }
     function setConnStatus(s) {
       connStatus = s;
@@ -464,7 +449,7 @@
     document.querySelectorAll('.tabBtn').forEach(function(btn){ btn.addEventListener('click',function(){ state.history=[]; navigate(btn.dataset.tab,{},false); }); });
     document.getElementById('postModal').addEventListener('click',function(ev){ if(ev.target.classList.contains('modal-mask')) closePostModal(); });
     document.getElementById('profileModal').addEventListener('click',function(ev){ if(ev.target.classList.contains('modal-mask')) closeProfileModal(); });
-    window.addEventListener('focus',function(){ if(!isCloudEnabled&&SUPABASE_URL&&SUPABASE_ANON_KEY) testConnection(); });
+    window.addEventListener('focus',function(){  });
     async function boot() { initSupabase(); initForms(); subscribeRealtime(); await startPage(); }
     boot();
   </script>
