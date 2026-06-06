@@ -187,7 +187,7 @@
       function api(m,path,body){
         var o={method:m,headers:H};
         if(body){o.body=JSON.stringify(body)}
-        return fetch(URL+path,o).then(function(r){return r.json().then(function(d){if(!r.ok)throw d;return d})})
+        return fetch(URL+path,o).then(function(r){return r.text().then(function(t){if(!t)return[];try{var d=JSON.parse(t);if(!r.ok)throw d;return d}catch(e){return[]}})})
       }
       function bld(table){
         var sel=[],ord="",eqs=[];
