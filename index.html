@@ -212,7 +212,7 @@
           upsert:function(data){return{then:function(res,rej){return api("POST","/rest/v1/"+table+"?on_conflict=id",data).catch(function(){return api("PATCH","/rest/v1/"+table+"?id=eq."+encodeURIComponent(data.id),data)}).then(res,rej)}}}
         }
       }
-      window.supabase={from:bld,channel:function(){return{on:function(){return this},subscribe:function(){}}}};
+      window.supabase=supabase={from:bld,channel:function(){return{on:function(){return this},subscribe:function(){}}}};
     })();
   </script>
 
