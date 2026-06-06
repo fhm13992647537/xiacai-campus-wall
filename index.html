@@ -260,7 +260,7 @@
 
     function getUser() {
       let user = read(STORAGE_KEYS.user, null);
-      if (!user) { syncUserCloud(user);
+      if (!user) {
         const num = Math.floor(1000 + Math.random() * 9000);
         user = {
           id: uid("user"),
@@ -268,7 +268,7 @@
           avatar: "",
           createdAt: Date.now()
         };
-        write(STORAGE_KEYS.user, user);
+        write(STORAGE_KEYS.user, user); if(isCloudEnabled)syncUserCloud(user);
       }
       return user;
     }
@@ -405,7 +405,7 @@
       el.classList.remove("flex");
     }
 
-    function simulateWork_old(callback) {
+    function simulateWork(callback) {
       showLoading();
       setTimeout(() => {
         callback();
@@ -919,7 +919,7 @@
     });
 
     // 初始化应用
-    // seedDemoData(); checkCloud().then(function(){if(isCloudEnabled){loadPostsCloud().then(function(posts){setPosts(posts)})}});
+    seedDemoData(); checkCloud().then(function(){if(isCloudEnabled){loadPostsCloud().then(function(posts){setPosts(posts);render()})}});
     initForms();
     render();
   </script>
